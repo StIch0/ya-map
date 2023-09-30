@@ -1,0 +1,24 @@
+image: registry.git.f7m.ru/examples/reactnativetemplate/reactnative:latest
+
+stages:
+  - check
+
+lint:
+  stage: check
+  script:
+    - yarn install
+    - yarn run lint
+  only:
+    - dev
+    - master
+    - merge_requests
+
+tsc:
+  stage: check
+  script:
+    - yarn install
+    - yarn tsc
+  only:
+    - dev
+    - master
+    - merge_requests

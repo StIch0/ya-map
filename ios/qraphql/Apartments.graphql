@@ -1,0 +1,22 @@
+query Apartments {
+  apartments(city_id:1){
+    data{
+      id
+      fias
+      point {
+        lat
+        lon
+      }
+      apartment_access_type{
+        id
+        title
+      }
+      apartments_tariffs {
+        code
+        price
+      }
+    }
+    status
+    status_message
+  }
+}
