@@ -8,10 +8,14 @@
 import Foundation
 import UIKit
 import YandexMapsMobile
+import React
+
 
 @objcMembers
 class YaMapView: UIView, YMKClusterListener, YMKClusterTapListener, YMKMapObjectTapListener, YMKMapCameraListener {
-  
+  private let defaultPoint: Point = Point(lat: 48.462793, lon: 135.083092)
+
+  private let maxPriceOnMarker = 99999
   
   func onCameraPositionChanged(with map: YMKMap, cameraPosition: YMKCameraPosition, cameraUpdateReason: YMKCameraUpdateReason, finished: Bool) {
     if (finished && cameraUpdateReason == .gestures){
@@ -36,18 +40,8 @@ class YaMapView: UIView, YMKClusterListener, YMKClusterTapListener, YMKMapObject
   
   func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
     guard let pointItem = mapObject.userData as? PointItem else { return false }
-    
-    if let index = points?.firstIndex(where: { item in
-      return item.id == pointItem.id
-    }) {
-      collection?.remove(with: mapObject)
-       
-//      collection?.setVisibleWithVisible(false, animation: .init(type: .linear, duration: 0))
-//      points?.remove(at: index)
-      
-      let center = YMKPoint(latitude: pointItem.point.lat, longitude: pointItem.point.lon)
-      collection?.addPlacemark(with: center, image: markerImage(pointItem, currentPoint: pointItem))
-    }
+    selectedId = pointItem.id
+    onPressMarker?(["id":pointItem.id])
     
     return true
   }
@@ -58,89 +52,104 @@ class YaMapView: UIView, YMKClusterListener, YMKClusterTapListener, YMKMapObject
   private let MARGIN_SIZE: CGFloat = 3
   private let STROKE_SIZE: CGFloat = 3
   private let FONT_SCALE_ONE_LEN = 16
-  private var zoom: Float = 2.0
+  private var zoom: Float = 14.0
+  @Published private var selectedId: Int?
   
   private var mapView: YMKMapView?
   private var yaMkCluster: YMKCluster?
-  private var points: [PointItem]?
   var onCameraPositionChangedEnd: RCTBubblingEventBlock?
-  var collection: YMKClusterizedPlacemarkCollection?
-  var placeMarkes: [YMKMapObject?]?
- 
+  var onPressMarker: RCTBubblingEventBlock?
+  
   override init(frame: CGRect) {
 
     
     super.init(frame: frame)
      
     mapView = YMKMapView(frame: frame)
-    
     mapView?.mapWindow.map.addCameraListener(with: self)
-    points = []
     setupView()
   }
    
-  required init?(coder aDecoder: NSCoder) {
-    super.init(coder: aDecoder)
+    required init?(coder aDecoder: NSCoder) {
+      super.init(coder: aDecoder)
+    }
+  
+  func setZoom(_ zoom: NSNumber){
+    self.zoom = Float(truncating: zoom)
   }
   
-  private func setCollectionPoints(_ points: [PointItem], center: YMKPoint, currentPoint: PointItem?){
-    
-   self.points = points
-   
-   
-   let collection = mapView?.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(with: self)
-   
-   self.collection = collection
-   
-   mapView?.mapWindow.map.move(
-           with: YMKCameraPosition.init(target: center, zoom: zoom, azimuth: 0, tilt: 0),
-           animationType: YMKAnimation(type: YMKAnimationType.smooth, duration: 5),
-           cameraCallback: nil)
-   
-   points.forEach {
-     let placemark = collection?.addPlacemark(with:
-                               YMKPoint(latitude: $0.point.lat,
-                                            longitude: $0.point.lon),
-                                              image: markerImage($0, currentPoint: currentPoint),
-                             style: YMKIconStyle(anchor: .init(cgVector: .init(dx: 0, dy: 1)), rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil))
-     placemark?.userData = $0
-     placemark?.addTapListener(with: self)
-     placeMarkes?.append(placemark)
-   }
-   
-   collection?.clusterPlacemarks(withClusterRadius: 20, minZoom: 20)
-  }
-  
-  func setPointsJson(_ newData: String) {
+  func setPointsJson(_ json: String) {
     do {
-      let data = Data(newData.utf8)
-      
+
+      let data = Data(json.utf8)
+
       let decoder = JSONDecoder()
       decoder.keyDecodingStrategy = .convertFromSnakeCase
       let throwables = try decoder.decode([Throwable<PointItem>].self, from: data)
       let points = throwables.compactMap { try? $0.result.get() }
-      let point = YMKPoint(latitude: points.first?.point.lat ?? 0, longitude: points.first?.point.lon ?? 0)
-      self.setCollectionPoints(points,center: point, currentPoint: nil)
-       
+ 
+      let collection = mapView?.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(with: self)
+      
+      points.forEach {
+        let placemark = collection?.addPlacemark(with:
+                                  YMKPoint(latitude: $0.pos.lat,
+                                               longitude: $0.pos.lon),
+                                image: markerImage($0),
+                                style: YMKIconStyle(anchor: .init(cgVector: .init(dx: 0, dy: 1)), rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil))
+        placemark?.userData = $0
+        placemark?.addTapListener(with: self)
+      }
+      
+      collection?.clusterPlacemarks(withClusterRadius: 20, minZoom: 20)
     } catch let error as NSError {
         print("Failed to load: \(error.localizedDescription)")
     }
   }
    
   
-  func markerImage(_ pointItem: PointItem, currentPoint: PointItem?)->UIImage {
+  func markerImage(_ pointItem: PointItem)->UIImage {
         
     let isClassic = pointItem.apartmentAccessType.id == .classic
-    let imageName = isClassic ? "map-pin-X-K-classic" : "map-pin-X-K-auto"
-    if var image = UIImage(named: imageName) {
-      var price = 0
-      pointItem.apartmentsTariffs.forEach {
-        price += $0.code == "sum" ? $0.price : 0
+    
+  
+    var price = 0
+    pointItem.apartTariffs.forEach{
+      switch $0.code {
+        case "sum":
+          price = $0.priceFewDays
+          break
+        case "per_24h":
+          price = $0.priceDay
+          break
+        case "per_3h":
+          price = $0.priceHour
+          break
+        default:
+          price = 0
+          break
+        }
+    }
+    
+    let imageSize = price > maxPriceOnMarker ? "XX" : "X"
+    
+    let imageName = isClassic ? "map-pin-\(imageSize)-K-classic" : "map-pin-\(imageSize)-K-auto"
+    var imageTintColor = UIColor.white
+    var textColor = UIColor.black
+    
+    $selectedId.receive(on: DispatchQueue.main)
+      .sink { [weak self] id in
+        let isChosen = id == pointItem.id
+        if (isChosen) {
+          imageTintColor = isClassic ? UIColor(hexString: "#4FAC6D") : UIColor(hexString: "#5663F6")
+          textColor = UIColor.white
+        }
       }
-       
+    
+   
+    
+    if let image = UIImage(named: imageName) {
       let text = "\(price.formattedWithSeparator) ₽"
-      
-      let textColor = currentPoint?.id == pointItem.id ? UIColor.white : UIColor.black
+       
       let scale = UIScreen.main.scale * 0.2
       let font = UIFont.systemFont(ofSize: 64)
       UIGraphicsBeginImageContextWithOptions(image.size, false, scale)
@@ -153,8 +162,9 @@ class YaMapView: UIView, YMKClusterListener, YMKClusterTapListener, YMKMapObject
       
       let rect = CGRect(origin: CGPoint(x:CGPoint.zero.x + 40, y: CGPoint.zero.y + 25), size: image.size)
       text.draw(in: rect, withAttributes: textFontAttributes)
-      
-      let newImage = UIGraphicsGetImageFromCurrentImageContext()
+       
+      let newImage = UIGraphicsGetImageFromCurrentImageContext()?.withTintColor(imageTintColor)
+    
       UIGraphicsEndImageContext()
       
       return newImage!
@@ -262,8 +272,6 @@ class YaMapView: UIView, YMKClusterListener, YMKClusterTapListener, YMKMapObject
       with: YMKCameraPosition.init(target: .init(latitude: center.lat, longitude: center.lon), zoom: zoom, azimuth: 0, tilt: 0),
       animationType: .init(type: .linear, duration: 0.5))
   }
-  
-   
   
   
   func onClusterTap(with cluster: YMKCluster) -> Bool {

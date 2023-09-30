@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct Point: Decodable {
   let lat: Double
@@ -14,7 +15,10 @@ struct Point: Decodable {
 
 struct TariffItem: Decodable {
   let code: String
-  let price: Int
+  let priceHour: Int
+  let priceDay: Int
+  let priceFewDays: Int
+  let hourAmount: Int
 }
 
 /// wifi 1 - бесконтакт, classic　2 - классика
@@ -25,13 +29,14 @@ enum ApartmentAccessTypeId: Int, Decodable {
 
 struct ApartmentAccessType: Decodable {
   let id: ApartmentAccessTypeId
+  let title: String
+  let __typename: String
 }
 
 struct PointItem: Decodable {
   let id: Int;
-  let fias: String;
-  let point: Point
-  let apartmentsTariffs: [TariffItem]
+  let pos: Point
+  let apartTariffs: [TariffItem]
   let apartmentAccessType: ApartmentAccessType
 }
 
@@ -86,3 +91,24 @@ extension UIColor {
         return String(format:"#%06x", rgb)
     }
 }
+
+extension UIImage {
+        func imageWithColor(tintColor: UIColor) -> UIImage {
+            UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
+
+            let context = UIGraphicsGetCurrentContext()!
+            context.translateBy(x: 0, y: self.size.height)
+            context.scaleBy(x: 1.0, y: -1.0);
+            context.setBlendMode(.normal)
+
+            let rect = CGRect(x: 0, y: 0, width: self.size.width, height: self.size.height) as CGRect
+            context.clip(to: rect, mask: self.cgImage!)
+            tintColor.setFill()
+            context.fill(rect)
+
+            let newImage = UIGraphicsGetImageFromCurrentImageContext()!
+            UIGraphicsEndImageContext()
+
+            return newImage
+        }
+    }
