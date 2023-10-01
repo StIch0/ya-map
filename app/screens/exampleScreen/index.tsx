@@ -6,6 +6,7 @@ import {
   UIManager,
   findNodeHandle,
   requireNativeComponent,
+  PermissionsAndroid
 } from 'react-native';
 import { ViewProps } from '@app/ui/components/View';
 
@@ -29910,37 +29911,84 @@ const arr: ArrItem[] = [
   },
 ];
 
-const RCTCustomView = requireNativeComponent<
-  ViewProps & { pointsJson?: string; statusA?: boolean }
->('YaMapVC');
+const RCTCustomView = requireNativeComponent('YaMapVC');
+// const RCTCustomView = requireNativeComponent<
+//   ViewProps & { pointsJson?: string; statusA?: boolean }
+// >('YaMapVC');
 
+const requestCameraPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Location Permission',
+        message:
+          'App needs access to your location ',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+
+    } else {
+
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+};
 const ExampleScreen = () => {
   const ref = useRef(null);
 
-  const setCenter = (point: ArrItem['pos'], zoom: number) => {
+//   const setCenter = (point: ArrItem['pos'], zoom: number) => {
+//     UIManager.dispatchViewManagerCommand(
+//       findNodeHandle(ref.current),
+//       UIManager.getViewManagerConfig('YaMapVC').Commands.setCenter,
+//       [point, zoom],
+//     );
+//   };
+const NativeViewManager = UIManager["YaMapVC"];
+// const setCenter = viewId =>
+//   UIManager.dispatchViewManagerCommand(
+//     viewId,
+//     UIManager.requireNativeComponent('YaMapManager').Commands.setCenter.toString(),
+//     [viewId],
+//   );
+
+const setCenter = (text) => {
     UIManager.dispatchViewManagerCommand(
       findNodeHandle(ref.current),
-      UIManager.getViewManagerConfig('YaMapVC').Commands.setCenter,
-      [point, zoom],
+      NativeViewManager.Commands["setCenter"],
+      [text],
     );
   };
 
-  // useEffect(() => {
-  //   setCenter({ lat: 0, lon: 0 }, 14);
-  // }, []);
+  useEffect(() => {
+      requestCameraPermission();
+    }, []);
+
+      useEffect(() => {
+        //setCenter({ lat: 0, lon: 0 }, 14);
+        setCenter("text");
+      }, []);
+//  useEffect(() => {
+//     const viewId = findNodeHandle(ref.current);
+//     setCenter(viewId);
+//   }, []);
 
   return (
     <RCTCustomView
-      ref={ref}
-      onCameraPositionChangedEnd={(a) => {
-        console.log('a', a.nativeEvent);
-      }}
-      style={{ flex: 1 }}
-      pointsJson={JSON.stringify(arr)}
-      zoom={12}
-      onPressMarker={(a) => {
-        console.log(a.nativeEvent);
-      }}
+       ref={ref}
+//       onCameraPositionChangedEnd={(a) => {
+//         console.log('a', a.nativeEvent);
+//       }}
+       style={{ flex: 1 }}
+       pointsJson={JSON.stringify(arr)}
+       zoom={12}
+//       onPressMarker={(a) => {
+//         console.log(a.nativeEvent);
+//       }}
     />
   );
 };
