@@ -54,15 +54,15 @@ class YaMapManager(
     }
 
     override fun receiveCommand(view: YaMapVC, commandId: String, args: ReadableArray?) {
-       // super.receiveCommand(view, commandId, args)
+        super.receiveCommand(view, commandId, args)
         Log.e("Batman", "receiveCommand")
         if (commandId == "setCenter" && args != null) {
-//            val center = args.getMap(0)
-//            view.setCenter(
-//                center.getDouble("lat"),
-//                center.getDouble("lon"),
-//                args.getDouble(1).toFloat()
-//            )
+            val center = args.getMap(0)
+            view.setCenter(
+                center.getDouble("lat"),
+                center.getDouble("lon"),
+                args.getDouble(1).toFloat()
+            )
         }
     }
 }
