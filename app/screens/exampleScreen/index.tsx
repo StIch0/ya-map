@@ -29958,15 +29958,18 @@ const ExampleScreen = () => {
   return (
     <RCTCustomView
       ref={nativeRef}
-      //       onCameraPositionChangedEnd={(a) => {
-      //         console.log('a', a.nativeEvent);
-      //       }}
+            onCameraPositionChangedEnd={(a) => {
+              console.log('a', a.nativeEvent);
+            }}
       style={{ flex: 1 }}
       pointsJson={JSON.stringify(arr)}
       zoom={12}
-      //       onPressMarker={(a) => {
-      //         console.log(a.nativeEvent);
-      //       }}
+            onPressMarker={(a) => {
+              console.log(a.nativeEvent);
+            }}
+            onMapPressed={() => {
+              console.log("onMapPressed");
+            }}
     />
   );
 };
