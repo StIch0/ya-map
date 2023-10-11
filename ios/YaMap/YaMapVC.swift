@@ -27,15 +27,15 @@ class YaMapVC: RCTViewManager  {
 //    apolloClient.fetch(query: apartments())
   }
    
-  @objc func setCenter(_ reactTag: NSNumber, center: Dictionary<NSString, NSNumber>, zoom: NSNumber){
+  @objc func setCenter(_ reactTag: NSNumber, center: Dictionary<NSString, NSNumber>, zoom: NSNumber) {
     self.bridge.uiManager.addUIBlock { manager, dict in
       let view = dict?[reactTag] as? YaMapView
       let centerPoint: Point = Point(lat: center["lat"] as? Double ?? 0, lon: center["lon"] as? Double ?? 0 )
       view?.setCenter(center: centerPoint, zoom: Float(zoom))
     }
+    
   }
    
-  
   override static func requiresMainQueueSetup() -> Bool {
       return true
     }

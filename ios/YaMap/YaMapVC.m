@@ -14,6 +14,7 @@
 RCT_EXPORT_VIEW_PROPERTY(pointsJson, NSString)
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber)
 RCT_EXPORT_VIEW_PROPERTY(onPressMarker, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onMapPressed, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onCameraPositionChangedEnd, RCTBubblingEventBlock)
 RCT_EXTERN_METHOD(setCenter:(nonnull NSNumber *)reactTag center:(NSDictionary *_Nonnull)center zoom:(NSNumber *_Nonnull)zoom)
 @end
