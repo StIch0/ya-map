@@ -13,15 +13,36 @@ import React
 @objcMembers
 final class YaMapView: UIView {
   
-  private let defaultPoint: Point = Point(lat: 48.462793, lon: 135.083092)
-  private let maxPriceOnMarker = 99999
+  private enum Constants {
+    static let defaultPoint: Point = Point(lat: 48.462793, lon: 135.083092)
+    static let maxPriceOnMarker = 99999
+    static let PLACEMARKS_NUMBER = 2000
+    static let FONT_SIZE: CGFloat = 15
+    static let MARGIN_SIZE: CGFloat = 3
+    static let STROKE_SIZE: CGFloat = 3
+    static let FONT_SCALE_ONE_LEN = 16
+    static let stepZoom: Int = 2
+  }
   
-  private let PLACEMARKS_NUMBER = 2000
-  private let FONT_SIZE: CGFloat = 15
-  private let MARGIN_SIZE: CGFloat = 3
-  private let STROKE_SIZE: CGFloat = 3
-  private let FONT_SCALE_ONE_LEN = 16
-  private var zoom: Float = 14.0
+  private var startZoom: Float = 12.0 // 16 18 20 21
+  private var currentZoom: Float?
+  
+  private var clusterZoom: Float? {
+    if let currentZoom, startZoom == currentZoom ||
+        currentZoom < startZoom {
+      return startZoom + Float(Constants.stepZoom)
+    }
+    if let currentZoom {
+      let currentZoomInt = Int(floor(currentZoom))
+      switch isEven(number: currentZoomInt) {
+      case true:
+        return Float(currentZoomInt + Constants.stepZoom)
+      case false:
+        return Float(currentZoomInt + 1 + Constants.stepZoom)
+      }
+    }
+    return nil
+  }
   
   private var mapView: YMKMapView!
   private var yaMkCluster: YMKCluster?
@@ -55,7 +76,8 @@ final class YaMapView: UIView {
   }
   
   func setZoom(_ zoom: NSNumber) {
-    self.zoom = Float(truncating: zoom)
+    self.startZoom = Float(truncating: zoom)
+    self.currentZoom = self.startZoom
   }
   
   func setPointsJson(_ json: String) {
@@ -111,7 +133,7 @@ final class YaMapView: UIView {
       }
     }
     
-    let imageSize = price > maxPriceOnMarker ? "XX" : "X"
+    let imageSize = price > Constants.maxPriceOnMarker ? "XX" : "X"
     var imageName = isClassic ? "map-pin-\(imageSize)-K-classic" : "map-pin-\(imageSize)-K-auto"
     
     if selectedState {
@@ -148,11 +170,11 @@ final class YaMapView: UIView {
   private func clusterImage(_ clusterSize: UInt) -> UIImage {
     let scale = UIScreen.main.scale
     let text = (clusterSize as NSNumber).stringValue
-    let font = UIFont.systemFont(ofSize: FONT_SIZE * scale)
+    let font = UIFont.systemFont(ofSize: Constants.FONT_SIZE * scale)
     let size = text.size(withAttributes: [NSAttributedString.Key.font: font])
     let textRadius = sqrt(size.height * size.height + size.width * size.width) / 2
-    let internalRadius = textRadius + MARGIN_SIZE * scale
-    let externalRadius = internalRadius + STROKE_SIZE * scale
+    let internalRadius = textRadius + Constants.MARGIN_SIZE * scale
+    let externalRadius = internalRadius + Constants.STROKE_SIZE * scale
     let iconSize = CGSize(width: externalRadius * 2, height: externalRadius * 2)
     
     UIGraphicsBeginImageContext(iconSize)
@@ -197,6 +219,10 @@ final class YaMapView: UIView {
     self.selectedPoint = nil
     self.selectedPlacemarkMapObject = nil
   }
+  
+  func isEven(number: Int) -> Bool {
+    return number % 2 == 0
+  }
 }
 
 extension YaMapView: YMKMapCameraListener {
@@ -207,6 +233,8 @@ extension YaMapView: YMKMapCameraListener {
     cameraUpdateReason: YMKCameraUpdateReason,
     finished: Bool
   ) {
+    currentZoom = cameraPosition.zoom
+    
     if (finished && cameraUpdateReason == .gestures) {
       let region: YMKVisibleRegion? = map.visibleRegion
       
@@ -242,11 +270,12 @@ extension YaMapView: YMKMapCameraListener {
 extension YaMapView: YMKClusterTapListener {
   
   func onClusterTap(with cluster: YMKCluster) -> Bool {
-    zoom+=2.0
+    guard let clusterZoom else { return false }
+
     mapView?.mapWindow.map.move(
       with: YMKCameraPosition(
         target: cluster.appearance.geometry,
-        zoom: zoom,
+        zoom: clusterZoom,
         azimuth: 0,
         tilt: 0),
       animationType: .init(
@@ -304,12 +333,12 @@ extension YaMapView: YMKClusterListener {
 extension YaMapView: YMKMapInputListener {
   
   func onMapLongTap(with map: YMKMap, point: YMKPoint) {
+    
   }
   
   func onMapTap(with map: YMKMap, point: YMKPoint) {
     
     onMapPressed?([:])
-    
     clearSelectedMark()
   }
 }
