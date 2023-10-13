@@ -24,7 +24,7 @@ final class YaMapView: UIView {
     static let stepZoom: Int = 2
   }
   
-  private var startZoom: Float = 12.0 // 16 18 20 21
+  private var startZoom: Float = 12.0
   private var currentZoom: Float?
   
   private var clusterZoom: Float? {
