@@ -22,6 +22,19 @@ final class YaMapView: UIView {
     static let STROKE_SIZE: CGFloat = 3
     static let FONT_SCALE_ONE_LEN = 16
     static let stepZoom: Int = 2
+    
+    static let classicMarker = UIImage(named: "marker-classic")
+    static let classicMarkerSelected = UIImage(named: "marker-classic-selected")
+    static let autoMarker = UIImage(named: "marker-auto")
+    static let autoMarkerSelected = UIImage(named: "marker-auto-selected")
+    
+    static let markerFont = UIFont.boldSystemFont(ofSize: 64)
+    
+    enum MarkerPadding {
+      static let vertical: CGFloat = 16
+      static let horizontal: CGFloat = 50
+      static let proportion: CGFloat = 0.47
+    }
   }
   
   private var startZoom: Float = 12.0
@@ -114,57 +127,91 @@ final class YaMapView: UIView {
   
   private func makeMarkerImage(
     _ pointItem: PointItem,
-    selectedState: Bool = false
+    selectedMarker: Bool = false
   ) -> UIImage {
+    guard 
+      let image = configureImageMarker(
+      pointItem: pointItem,
+      selectedMarker: selectedMarker
+    )
+    else { return UIImage() }
+    
+    let price: Int = calculatePrice(pointItem: pointItem)
+    let textMarker = configureTextMarker(price: price, selectedMarker: selectedMarker)
+    
+    let scale = UIScreen.main.scale * 0.2
+    let widthImage = textMarker.size.width + Constants.MarkerPadding.horizontal * 2
+    let heightImage = widthImage * Constants.MarkerPadding.proportion + Constants.MarkerPadding.vertical
+    let paddingTop = (heightImage / 2 - 10)  * scale
+    
+    let sizeImage = CGSize(
+      width: widthImage,
+      height: heightImage
+    )
+    
+    UIGraphicsBeginImageContextWithOptions(sizeImage, false, scale)
+    
+    image.draw(in: CGRect(
+      origin: CGPoint.zero,
+      size: sizeImage)
+    )
+    
+    let rect = CGRect(
+      origin: CGPoint(
+        x: Constants.MarkerPadding.horizontal,
+        y: paddingTop
+      ),
+      size: sizeImage)
+    
+    textMarker.text.draw(in: rect, withAttributes: textMarker.attributes)
+    
+    let newImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    
+    return newImage!
+  }
+  
+  private func calculatePrice(pointItem: PointItem) -> Int {
+    let tariff = pointItem.apartTariffs.first { $0.code == "sum" }
+    return tariff?.priceFewDays ?? 0
+  }
+  
+  private func configureTextMarker(
+    price: Int,
+    selectedMarker: Bool
+  ) -> (text: String, size: CGSize, attributes:[NSAttributedString.Key: Any] ) {
+    let text = "\(price.formattedWithSeparator) ₽"
+    var textColor: UIColor = .black
+    let font = Constants.markerFont
+    
+    if selectedMarker {
+      textColor = .white
+    }
+    let textFontAttributes: [NSAttributedString.Key: Any] = [
+      .foregroundColor: textColor,
+      .font: font
+    ]
+    let textSize = (text as NSString).size(withAttributes: textFontAttributes)
+    
+    return (text: text, size: textSize, attributes: textFontAttributes)
+  }
+  
+  private func configureImageMarker(
+    pointItem: PointItem,
+    selectedMarker: Bool
+  ) -> UIImage? {
     let isClassic = pointItem.apartmentAccessType.id == .classic
     
-    var price: Int = 0
-    
-    pointItem.apartTariffs.forEach {
-      switch $0.code {
-      case "sum":
-        price = $0.priceFewDays
-      case "per_24h":
-        price = $0.priceDay
-      case "per_3h":
-        price = $0.priceHour
-      default:
-        price = 0
-      }
+    switch (isClassic, selectedMarker) {
+    case (true, true):
+      return Constants.classicMarkerSelected
+    case (true, false):
+      return Constants.classicMarker
+    case (false, true):
+      return Constants.autoMarkerSelected
+    case (false, false):
+      return Constants.autoMarker
     }
-    
-    let imageSize = price > Constants.maxPriceOnMarker ? "XX" : "X"
-    var imageName = isClassic ? "map-pin-\(imageSize)-K-classic" : "map-pin-\(imageSize)-K-auto"
-    
-    if selectedState {
-      imageName = isClassic ? "map-pin-\(imageSize)-K-classic-selected" : "map-pin-\(imageSize)-K-auto-selected"
-    }
-    
-    if let image = UIImage(named: imageName) {
-      let text = "\(price.formattedWithSeparator) ₽"
-      var textColor: UIColor = .black
-      let scale = UIScreen.main.scale * 0.2
-      let font = UIFont.systemFont(ofSize: 64)
-      
-      if selectedState {
-        textColor = .white
-      }
-      
-      UIGraphicsBeginImageContextWithOptions(image.size, false, scale)
-      let textFontAttributes = [
-        NSAttributedString.Key.font: font,
-        NSAttributedString.Key.foregroundColor: textColor,
-      ] as [NSAttributedString.Key : Any]
-      
-      image.draw(in: CGRect(origin: CGPoint.zero, size: image.size))
-      let rect = CGRect(origin: CGPoint(x:CGPoint.zero.x + 40, y: CGPoint.zero.y + 25), size: image.size)
-      text.draw(in: rect, withAttributes: textFontAttributes)
-      let newImage = UIGraphicsGetImageFromCurrentImageContext()
-      UIGraphicsEndImageContext()
-      return newImage!
-    }
-    
-    return UIImage()
   }
   
   private func clusterImage(_ clusterSize: UInt) -> UIImage {
@@ -213,7 +260,7 @@ final class YaMapView: UIView {
     
     let image = makeMarkerImage(
       selectedPoint,
-      selectedState: false
+      selectedMarker: false
     )
     selectedPlacemarkMapObject.setIconWith(image)
     self.selectedPoint = nil
@@ -299,7 +346,7 @@ extension YaMapView: YMKMapObjectTapListener {
     
     let image = makeMarkerImage(
       pointItem,
-      selectedState: true
+      selectedMarker: true
     )
     placeMark.setIconWith(image)
     
@@ -316,6 +363,16 @@ extension YaMapView: YMKMapObjectTapListener {
 extension YaMapView: YMKClusterListener {
   
   func onClusterAdded(with cluster: YMKCluster) {
+    
+    
+    
+//    let minPrice: Int? = cluster.placemarks.map {
+//          let userData = $0.userData as? PointItem
+//          let price = userData?.apartmentsTariffs.first(where: {$0.code == "sum"})?.price
+//          return price ?? 0
+//      
+//        }
+    
     cluster.appearance.setIconWith(
       clusterImage(cluster.size),
       style: YMKIconStyle(
