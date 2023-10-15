@@ -67,7 +67,7 @@ final class YaMapView: UIView {
   var onCameraPositionChangedEnd: RCTBubblingEventBlock?
   var onPressMarker: RCTBubblingEventBlock?
   var onMapPressed: RCTBubblingEventBlock?
-
+  
   override init(frame: CGRect) {
     super.init(frame: frame)
     setupView()
@@ -112,29 +112,35 @@ final class YaMapView: UIView {
     let collection = mapView?.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(with: self)
     
     points.forEach {
+      guard let marker = makeMarkerImage($0) else { return }
+      
       let placemark = collection?.addPlacemark(
-        with: YMKPoint(latitude: $0.pos.lat, longitude: $0.pos.lon),
-        image: makeMarkerImage($0),
+        with: YMKPoint(
+          latitude: $0.pos.lat,
+          longitude: $0.pos.lon
+        ),
+        image: marker,
         style: YMKIconStyle(
           anchor: CGPoint(x: 0.5, y: 0.5) as NSValue,
-          rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil))
+          rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil)
+      )
+      
       placemark?.userData = $0
       placemark?.addTapListener(with: self)
     }
-    
     collection?.clusterPlacemarks(withClusterRadius: 20, minZoom: 20)
   }
   
   private func makeMarkerImage(
     _ pointItem: PointItem,
     selectedMarker: Bool = false
-  ) -> UIImage {
-    guard 
+  ) -> UIImage? {
+    guard
       let image = configureImageMarker(
-      pointItem: pointItem,
-      selectedMarker: selectedMarker
-    )
-    else { return UIImage() }
+        pointItem: pointItem,
+        selectedMarker: selectedMarker
+      )
+    else { return nil}
     
     let price: Int = calculatePrice(pointItem: pointItem)
     let textMarker = configureTextMarker(price: price, selectedMarker: selectedMarker)
@@ -168,7 +174,7 @@ final class YaMapView: UIView {
     let newImage = UIGraphicsGetImageFromCurrentImageContext()
     UIGraphicsEndImageContext()
     
-    return newImage!
+    return newImage
   }
   
   private func calculatePrice(pointItem: PointItem) -> Int {
@@ -216,7 +222,9 @@ final class YaMapView: UIView {
   
   private func clusterImage(_ clusterSize: UInt) -> UIImage {
     let scale = UIScreen.main.scale
+    
     let text = (clusterSize as NSNumber).stringValue
+    
     let font = UIFont.systemFont(ofSize: Constants.FONT_SIZE * scale)
     let size = text.size(withAttributes: [NSAttributedString.Key.font: font])
     let textRadius = sqrt(size.height * size.height + size.width * size.width) / 2
@@ -225,6 +233,7 @@ final class YaMapView: UIView {
     let iconSize = CGSize(width: externalRadius * 2, height: externalRadius * 2)
     
     UIGraphicsBeginImageContext(iconSize)
+    
     let ctx = UIGraphicsGetCurrentContext()!
     ctx.setFillColor(UIColor(hexString: "#5663F6", alpha: 1).cgColor)
     
@@ -246,6 +255,7 @@ final class YaMapView: UIView {
         NSAttributedString.Key.foregroundColor: UIColor.black])
     
     let image = UIGraphicsGetImageFromCurrentImageContext()!
+    
     return image
   }
   
@@ -256,12 +266,14 @@ final class YaMapView: UIView {
   }
   
   private func clearSelectedMark() {
-    guard let selectedPoint, let selectedPlacemarkMapObject  else { return }
+    guard let selectedPoint, let selectedPlacemarkMapObject else { return }
     
-    let image = makeMarkerImage(
+    guard let image = makeMarkerImage(
       selectedPoint,
       selectedMarker: false
     )
+    else { return }
+    
     selectedPlacemarkMapObject.setIconWith(image)
     self.selectedPoint = nil
     self.selectedPlacemarkMapObject = nil
@@ -318,7 +330,7 @@ extension YaMapView: YMKClusterTapListener {
   
   func onClusterTap(with cluster: YMKCluster) -> Bool {
     guard let clusterZoom else { return false }
-
+    
     mapView?.mapWindow.map.move(
       with: YMKCameraPosition(
         target: cluster.appearance.geometry,
@@ -340,14 +352,16 @@ extension YaMapView: YMKMapObjectTapListener {
           let placeMark = mapObject as? YMKPlacemarkMapObject
     else { return false }
     
-   if selectedPoint != nil {
+    if selectedPoint != nil {
       clearSelectedMark()
     }
     
-    let image = makeMarkerImage(
+    guard let image = makeMarkerImage(
       pointItem,
       selectedMarker: true
     )
+    else { return false }
+    
     placeMark.setIconWith(image)
     
     self.selectedPlacemarkMapObject = placeMark
@@ -366,12 +380,12 @@ extension YaMapView: YMKClusterListener {
     
     
     
-//    let minPrice: Int? = cluster.placemarks.map {
-//          let userData = $0.userData as? PointItem
-//          let price = userData?.apartmentsTariffs.first(where: {$0.code == "sum"})?.price
-//          return price ?? 0
-//      
-//        }
+    //    let minPrice: Int? = cluster.placemarks.map {
+    //          let userData = $0.userData as? PointItem
+    //          let price = userData?.apartmentsTariffs.first(where: {$0.code == "sum"})?.price
+    //          return price ?? 0
+    //
+    //        }
     
     cluster.appearance.setIconWith(
       clusterImage(cluster.size),
