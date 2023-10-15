@@ -1,6 +1,10 @@
 package com.yamaptest
 
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.view.View
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.uimanager.SimpleViewManager
@@ -14,6 +18,7 @@ class YaMapManager(
     override fun getName() = "YaMapVC"
 
     override fun createViewInstance(context: ThemedReactContext): YaMapVC {
+        requestLocationPermission(callerContext.currentActivity!!)
         return YaMapVC(context)
     }
 
@@ -67,4 +72,20 @@ class YaMapManager(
             ),
         )
     }
+
+    private fun requestLocationPermission(activity: Activity) {
+        if (ContextCompat.checkSelfPermission(
+                activity,
+                "android.permission.ACCESS_FINE_LOCATION"
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                activity, arrayOf<String>("android.permission.ACCESS_FINE_LOCATION"),
+                PERMISSIONS_REQUEST_FINE_LOCATION
+            )
+        }
+    }
+
+    private val PERMISSIONS_REQUEST_FINE_LOCATION = 1
 }

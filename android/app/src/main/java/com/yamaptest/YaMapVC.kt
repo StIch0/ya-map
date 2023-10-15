@@ -1,7 +1,11 @@
 package com.yamaptest
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.PointF
 import android.util.Log
+import android.view.Gravity
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableNativeMap
@@ -20,10 +24,8 @@ import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapLoadStatistics
 import com.yandex.mapkit.map.MapLoadedListener
-import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
-import com.yandex.mapkit.map.TextStyle
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.mapkit.user_location.UserLocationLayer
 import com.yandex.mapkit.user_location.UserLocationObjectListener
@@ -32,42 +34,42 @@ import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
 import java.text.NumberFormat
 import java.util.Locale
-
+import com.yamaptest.R
+import com.yandex.mapkit.location.LocationManager
 
 class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedListener {
     private var pointList: YaMapPointModel = YaMapPointModel()
-    private var mapObjectCollection: MapObjectCollection
-    private var locationPlace: PlacemarkMapObject? = null
     private var userLocationLayer: UserLocationLayer
-    private val moneyFormatter = NumberFormat.getCurrencyInstance(Locale("RU", "RU"))
-    private var lastClickedMarker: PlacemarkMapObject? = null
+    private var locationManager: LocationManager
+    private val moneyFormatter = NumberFormat.getCurrencyInstance(Locale("RU", "RU")).apply {
+        maximumFractionDigits = 0
+    }
+    private var lastClickedMarker: Pair<PlacemarkMapObject, YaMapPointModelItem>? = null
 
     private val placemarkTapListener = MapObjectTapListener { mapObject, point ->
-        (mapObject.userData as? YaMapPointModelItem)?.let {
+        (mapObject.userData as? YaMapPointModelItem)?.let { userData ->
             val map = WritableNativeMap()
-            map.putInt("id", it.id)
+            map.putInt("id", userData.id)
             val reactContext = context as ReactContext
             reactContext
                 .getJSModule(RCTEventEmitter::class.java)
                 .receiveEvent(id, "onPressMarker", map)
-        }
-        (mapObject as? PlacemarkMapObject)?.let {
-            lastClickedMarker?.setIcon(
-                ImageProvider.fromResource(context, R.drawable.pin),
-                IconStyle().apply { scale = 0.4f })
-            lastClickedMarker = it
-            it.setIcon(
-                ImageProvider.fromResource(context, R.drawable.clicked_pin),
-                IconStyle().apply { scale = 0.4f })
+            (mapObject as? PlacemarkMapObject)?.let {
+                lastClickedMarker?.let { (marker, item) ->
+                    marker.setMarkerIcon(item, false)
+                }
+                lastClickedMarker = it to userData
+                it.setMarkerIcon(userData, true)
+            }
         }
         true
     }
 
     private val inputListener = object : InputListener {
         override fun onMapTap(map: Map, point: Point) {
-            lastClickedMarker?.setIcon(
-                ImageProvider.fromResource(context, R.drawable.pin),
-                IconStyle().apply { scale = 0.4f })
+            lastClickedMarker?.let { (marker, item) ->
+                marker.setMarkerIcon(item, false)
+            }
             lastClickedMarker = null
             val reactContext = context as ReactContext
             reactContext
@@ -94,19 +96,54 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
     private val clusterListener = ClusterListener { cluster ->
         cluster.appearance.setView(
             ViewProvider(
-                TextView(context).apply {
-                    width = 100
-                    height = 100
-                    setBackgroundColor(context.resources.getColor(android.R.color.holo_green_light))
-                    text = "${cluster.placemarks.size}"
+                LinearLayout(context).apply {
+                    setBackgroundResource(R.mipmap.group)
+                    gravity = Gravity.CENTER_VERTICAL
+                    addView(TextView(context).apply {
+                        val params = LinearLayout.LayoutParams(
+                            LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
+                        )
+                        params.width = 100
+                        layoutParams = params
+                        text = cluster.placemarks.size.toString()
+                        setTextColor(context.resources.getColor(R.color.dark))
+                        textSize = 14f
+                        gravity = Gravity.CENTER
+                    })
+                    addView(TextView(context).apply {
+                        val params = LinearLayout.LayoutParams(
+                            LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
+                        )
+                        params.weight = 1.0f
+                        layoutParams = params
+                        text = "от " + (cluster.placemarks.minBy {
+                            (it.userData as YaMapPointModelItem).getPrice()
+                        }.userData as YaMapPointModelItem).getPrice()
+                        //text = "от " + moneyFormatter.format(10000)
+                        setTextColor(context.resources.getColor(R.color.dark))
+                        textSize = 14f
+                        gravity = Gravity.CENTER
+                        setPadding(0, 0, 20, 15)
+                    })
+                    setPadding(4, 5, 5, 20)
                 }
-            )
+            ),
+            IconStyle().apply {
+                anchor = PointF(0.16f, 0.6f)
+            }
         )
         cluster.addClusterTapListener(clusterTapListener)
     }
 
     private val clusterTapListener = ClusterTapListener {
-        setZoom(map.cameraPosition.zoom + 2)
+        map.move(
+            CameraPosition(
+                it.appearance.geometry,
+                map.cameraPosition.zoom + 2,
+                map.cameraPosition.azimuth,
+                map.cameraPosition.tilt
+            )
+        )
         true
     }
     private val clusterizedCollection =
@@ -115,13 +152,14 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
     init {
         map.addCameraListener(this)
         map.addInputListener(inputListener)
-        mapObjectCollection = map.mapObjects.addCollection()
-        val mapKit = MapKitFactory.getInstance()
 
+        val mapKit = MapKitFactory.getInstance()
         userLocationLayer = mapKit.createUserLocationLayer(mapWindow)
-        userLocationLayer.setObjectListener(userLocationObjectListener)
         userLocationLayer.isVisible = true
-        userLocationLayer.isHeadingEnabled = false
+        userLocationLayer.isHeadingEnabled = true
+        userLocationLayer.setObjectListener(userLocationObjectListener)
+
+        locationManager = mapKit.createLocationManager()
     }
 
     override fun onCameraPositionChanged(
@@ -204,20 +242,50 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
             val point = Point(it.pos.lat, it.pos.lon)
             clusterizedCollection.addPlacemark().apply {
                 geometry = point
-                setIcon(ImageProvider.fromResource(context, R.drawable.pin))
-                setIconStyle(IconStyle().apply { scale = 0.4f })
-                setText(moneyFormatter.format(88888), TextStyle().apply { size = 12f })
+                setMarkerIcon(it, false)
+                //setIcon(ImageProvider.fromResource(context, R.drawable.test_point))
                 userData = it
                 addTapListener(placemarkTapListener)
             }
         }
-        clusterizedCollection.clusterPlacemarks(60.0, 15)
+        clusterizedCollection.clusterPlacemarks(100.0, 17)
     }
 
     private fun updateUserLocationIcon(userLocationView: UserLocationView) {
+        Log.d("Batman", "updateUserLocationIcon")
+        setCenter(
+            userLocationView.pin.geometry.latitude,
+            userLocationView.pin.geometry.latitude,
+            map.cameraPosition.zoom
+        )
         userLocationView.pin.setIcon(ImageProvider.fromResource(context, R.mipmap.ic_user_location))
     }
 
     override fun onMapLoaded(p0: MapLoadStatistics) {
     }
+
+    private fun PlacemarkMapObject.setMarkerIcon(item: YaMapPointModelItem, isClicked: Boolean) =
+        setView(ViewProvider(TextView(context).apply {
+            text = item.getPrice()
+            //text = moneyFormatter.format(10000)
+            setTextColor(if (isClicked) Color.WHITE else context.resources.getColor(R.color.dark))
+            val isClassic = item.apartmentAccessType.id == 2
+            setBackgroundResource(
+                if (isClicked) {
+                    if (isClassic) R.mipmap.clicked_green_pin else R.mipmap.clicked_blue_pin
+                } else {
+                    if (isClassic) R.mipmap.green_pin else R.mipmap.blue_pin
+                }
+            )
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setPadding(10, 10, 15, 20)
+        }),
+            IconStyle().apply {
+                anchor = PointF(0.08f, 0.78f)
+            }
+        )
+
+    private fun YaMapPointModelItem.getPrice() =
+        moneyFormatter.format(apartTariffs.firstOrNull { it.code == "sum" }?.priceFewDays ?: 0)
 }
