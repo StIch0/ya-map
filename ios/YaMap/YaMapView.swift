@@ -96,6 +96,13 @@ final class YaMapView: UIView {
   private func addListeners() {
     mapView.mapWindow.map.addCameraListener(with: self)
     mapView.mapWindow.map.addInputListener(with: self)
+    
+    let scale = UIScreen.main.scale
+    let mapKit = YMKMapKit.sharedInstance()
+    let userLocationLayer = mapKit.createUserLocationLayer(with: mapView.mapWindow)
+    userLocationLayer.setVisibleWithOn(true)
+    userLocationLayer.isHeadingEnabled = true
+    userLocationLayer.setObjectListenerWith(self)
   }
   
   func setZoom(_ zoom: NSNumber) {
@@ -236,7 +243,7 @@ final class YaMapView: UIView {
   ) -> UIImage {
     let scale = UIScreen.main.scale
     
-    let circleImage = Constants.Image.clusterCircle! // не забыть
+    let circleImage = Constants.Image.clusterCircle!
     let substrateImage = Constants.Image.clusterSubstrate!
     
     let countText = String(clusterSize)
@@ -455,4 +462,33 @@ extension YaMapView: YMKMapInputListener {
     onMapPressed?([:])
     clearSelectedMark()
   }
+}
+
+
+extension YaMapView: YMKUserLocationObjectListener {
+  
+  func onObjectAdded(with view: YMKUserLocationView) {
+    view.arrow.setIconWith(UIImage(named:"user-position")!)
+    
+    let pinPlacemark = view.pin.useCompositeIcon()
+    
+    pinPlacemark.setIconWithName("user-position",
+        image: UIImage(named:"user-position")!,
+        style:YMKIconStyle(
+            anchor: CGPoint(x: 0.5, y: 0.5) as NSValue,
+            rotationType: YMKRotationType.rotate.rawValue as NSNumber,
+            zIndex: 0,
+            flat: true,
+            visible: true,
+            scale: 1,
+            tappableArea: nil))
+    
+  }
+  
+  func onObjectRemoved(with view: YMKUserLocationView) {
+  }
+  
+  func onObjectUpdated(with view: YMKUserLocationView, event: YMKObjectEvent) {
+  }
+  
 }
