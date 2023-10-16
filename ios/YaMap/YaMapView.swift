@@ -23,17 +23,27 @@ final class YaMapView: UIView {
     static let FONT_SCALE_ONE_LEN = 16
     static let stepZoom: Int = 2
     
-    static let classicMarker = UIImage(named: "marker-classic")
-    static let classicMarkerSelected = UIImage(named: "marker-classic-selected")
-    static let autoMarker = UIImage(named: "marker-auto")
-    static let autoMarkerSelected = UIImage(named: "marker-auto-selected")
+    enum Image {
+      static let classicMarker = UIImage(named: "marker-classic")
+      static let classicMarkerSelected = UIImage(named: "marker-classic-selected")
+      static let autoMarker = UIImage(named: "marker-auto")
+      static let autoMarkerSelected = UIImage(named: "marker-auto-selected")
+      
+      static let clusterCircle = UIImage(named: "cluster-circle")
+      static let clusterSubstrate = UIImage(named: "cluster-substrate")
+    }
     
     static let markerFont = UIFont.boldSystemFont(ofSize: 64)
+    static let clusterCountFont = UIFont.boldSystemFont(ofSize: 13)
     
     enum MarkerPadding {
       static let vertical: CGFloat = 16
       static let horizontal: CGFloat = 50
       static let proportion: CGFloat = 0.47
+    }
+    
+    enum ClusterPricePadding {
+      static let horizontal: CGFloat = 20
     }
   }
   
@@ -143,12 +153,11 @@ final class YaMapView: UIView {
     else { return nil}
     
     let price: Int = calculatePrice(pointItem: pointItem)
-    let textMarker = configureTextMarker(price: price, selectedMarker: selectedMarker)
+    let textMarker = configurePriceText(price: price, selected: selectedMarker)
     
     let scale = UIScreen.main.scale * 0.2
     let widthImage = textMarker.size.width + Constants.MarkerPadding.horizontal * 2
     let heightImage = widthImage * Constants.MarkerPadding.proportion + Constants.MarkerPadding.vertical
-    let paddingTop = (heightImage / 2 - 10)  * scale
     
     let sizeImage = CGSize(
       width: widthImage,
@@ -164,8 +173,8 @@ final class YaMapView: UIView {
     
     let rect = CGRect(
       origin: CGPoint(
-        x: Constants.MarkerPadding.horizontal,
-        y: paddingTop
+        x: widthImage / 2 - textMarker.size.width / 2,
+        y: (heightImage / 2 - textMarker.size.height / 2) - 16
       ),
       size: sizeImage)
     
@@ -182,15 +191,16 @@ final class YaMapView: UIView {
     return tariff?.priceFewDays ?? 0
   }
   
-  private func configureTextMarker(
+  private func configurePriceText(
     price: Int,
-    selectedMarker: Bool
+    selected: Bool = false
   ) -> (text: String, size: CGSize, attributes:[NSAttributedString.Key: Any] ) {
+    
     let text = "\(price.formattedWithSeparator) ₽"
     var textColor: UIColor = .black
     let font = Constants.markerFont
     
-    if selectedMarker {
+    if selected {
       textColor = .white
     }
     let textFontAttributes: [NSAttributedString.Key: Any] = [
@@ -210,53 +220,88 @@ final class YaMapView: UIView {
     
     switch (isClassic, selectedMarker) {
     case (true, true):
-      return Constants.classicMarkerSelected
+      return Constants.Image.classicMarkerSelected
     case (true, false):
-      return Constants.classicMarker
+      return Constants.Image.classicMarker
     case (false, true):
-      return Constants.autoMarkerSelected
+      return Constants.Image.autoMarkerSelected
     case (false, false):
-      return Constants.autoMarker
+      return Constants.Image.autoMarker
     }
   }
   
-  private func clusterImage(_ clusterSize: UInt) -> UIImage {
+  private func clusterImage(
+    price: Int,
+    _ clusterSize: UInt
+  ) -> UIImage {
     let scale = UIScreen.main.scale
     
-    let text = (clusterSize as NSNumber).stringValue
+    let circleImage = Constants.Image.clusterCircle! // не забыть
+    let substrateImage = Constants.Image.clusterSubstrate!
     
-    let font = UIFont.systemFont(ofSize: Constants.FONT_SIZE * scale)
-    let size = text.size(withAttributes: [NSAttributedString.Key.font: font])
-    let textRadius = sqrt(size.height * size.height + size.width * size.width) / 2
-    let internalRadius = textRadius + Constants.MARGIN_SIZE * scale
-    let externalRadius = internalRadius + Constants.STROKE_SIZE * scale
-    let iconSize = CGSize(width: externalRadius * 2, height: externalRadius * 2)
+    let countText = String(clusterSize)
+    let countTextAttributes: [NSAttributedString.Key: Any] = [
+      .foregroundColor: UIColor.black,
+      .font: Constants.clusterCountFont
+    ]
+    let countTextSize = countText.size(withAttributes: countTextAttributes)
     
-    UIGraphicsBeginImageContext(iconSize)
     
-    let ctx = UIGraphicsGetCurrentContext()!
-    ctx.setFillColor(UIColor(hexString: "#5663F6", alpha: 1).cgColor)
+    let priceText = "от \(price.formattedWithSeparator) ₽"
+    let priceTextAttributes: [NSAttributedString.Key: Any] = [
+      .foregroundColor: UIColor.black,
+      .font: Constants.clusterCountFont
+    ]
+    let priceTextSize = priceText.size(withAttributes: priceTextAttributes)
     
-    ctx.fillEllipse(in: CGRect(
-      origin: .zero,
-      size: CGSize(width: 2 * externalRadius, height: 2 * externalRadius)));
     
-    ctx.setFillColor(UIColor.white.cgColor)
-    ctx.fillEllipse(in: CGRect(
-      origin: CGPoint(x: externalRadius - internalRadius, y: externalRadius - internalRadius),
-      size: CGSize(width: 2 * internalRadius, height: 2 * internalRadius)));
+    let widthSubstrateImage = priceTextSize.width + Constants.ClusterPricePadding.horizontal * 2
     
-    (text as NSString).draw(
-      in: CGRect(
-        origin: CGPoint(x: externalRadius - size.width / 2, y: externalRadius - size.height / 2),
-        size: size),
-      withAttributes: [
-        NSAttributedString.Key.font: font,
-        NSAttributedString.Key.foregroundColor: UIColor.black])
+    let newImageSize = CGSize(
+      width: circleImage.size.width / 2  + widthSubstrateImage,
+      height: circleImage.size.height)
     
-    let image = UIGraphicsGetImageFromCurrentImageContext()!
+    UIGraphicsBeginImageContextWithOptions(newImageSize, false, scale)
     
-    return image
+    substrateImage.draw(in: CGRect(
+      origin: CGPoint(
+        x: circleImage.size.width / 2 - 10,
+        y: 0.3
+      ),
+      size: CGSize(
+        width: widthSubstrateImage,
+        height: substrateImage.size.height))
+    )
+    
+    circleImage.draw(in: CGRect(
+      origin: CGPoint.zero,
+      size: circleImage.size)
+    )
+    
+    let clusterCountTextRect = CGRect(
+      origin: CGPoint(
+        x: (circleImage.size.width / 2 - countTextSize.width / 2),
+        y: (circleImage.size.height / 2 - countTextSize.height / 2)
+      ),
+      size: circleImage.size
+    )
+    
+    countText.draw(in: clusterCountTextRect, withAttributes: countTextAttributes)
+    
+    let centerPriceText = CGPoint(
+      x: (widthSubstrateImage / 2 - priceTextSize.width / 2) + circleImage.size.width / 2,
+      y: (substrateImage.size.height / 2) - (priceTextSize.height / 2)
+    )
+    
+    priceText.draw(in: CGRect(
+      origin: centerPriceText,
+      size: newImageSize
+    ), withAttributes: priceTextAttributes)
+    
+    let newImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    
+    return newImage!
   }
   
   func setCenter(center: Point, zoom: Float) {
@@ -377,18 +422,16 @@ extension YaMapView: YMKMapObjectTapListener {
 extension YaMapView: YMKClusterListener {
   
   func onClusterAdded(with cluster: YMKCluster) {
+    let pointItems: [Int] = cluster.placemarks.compactMap {
+      guard let point = $0.userData as? PointItem else { return nil }
+      return calculatePrice(pointItem: point)
+    }
     
-    
-    
-    //    let minPrice: Int? = cluster.placemarks.map {
-    //          let userData = $0.userData as? PointItem
-    //          let price = userData?.apartmentsTariffs.first(where: {$0.code == "sum"})?.price
-    //          return price ?? 0
-    //
-    //        }
-    
+    let sortedPice = pointItems.lazy.sorted { $1 > $0 }
+    let minPrice = sortedPice.first ?? 0
+
     cluster.appearance.setIconWith(
-      clusterImage(cluster.size),
+      clusterImage(price: minPrice, cluster.size),
       style: YMKIconStyle(
         anchor: .init(cgVector: .init(dx: 0, dy: 1)),
         rotationType: nil,

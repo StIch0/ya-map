@@ -21,8 +21,6 @@ class YaMapVC: RCTViewManager  {
   
   override init() {
     super.init()
-     
-
 //    let apolloClient = ApolloClient(url: URL(string: "https://apartshering.com/graphql")!)
 //    apolloClient.fetch(query: apartments())
   }
