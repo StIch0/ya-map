@@ -142,14 +142,14 @@ final class YaMapView: UIView {
         ),
         image: marker,
         style: YMKIconStyle(
-          anchor: CGPoint(x: 0.5, y: 0.5) as NSValue,
+          anchor: CGPoint(x: 0.0, y: 1.0) as NSValue,
           rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil)
       )
       
       placemark?.userData = $0
       placemark?.addTapListener(with: self)
     }
-    collection?.clusterPlacemarks(withClusterRadius: 20, minZoom: 20)
+    collection?.clusterPlacemarks(withClusterRadius: 35, minZoom: 20)
   }
   
   private func makeMarkerImage(
@@ -330,7 +330,10 @@ final class YaMapView: UIView {
     )
     else { return }
     
-    selectedPlacemarkMapObject.setIconWith(image)
+    selectedPlacemarkMapObject.setIconWith(image, style: YMKIconStyle(
+      anchor: CGPoint(x: 0.0, y: 1.0) as NSValue,
+      rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil))
+    
     self.selectedPoint = nil
     self.selectedPlacemarkMapObject = nil
   }
@@ -418,7 +421,9 @@ extension YaMapView: YMKMapObjectTapListener {
     )
     else { return false }
     
-    placeMark.setIconWith(image)
+    placeMark.setIconWith(image, style: YMKIconStyle(
+      anchor: CGPoint(x: 0.0, y: 1.0) as NSValue,
+      rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil))
     
     self.selectedPlacemarkMapObject = placeMark
     self.selectedPoint = pointItem
