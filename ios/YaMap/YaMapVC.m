@@ -12,6 +12,7 @@
  
 @interface RCT_EXTERN_MODULE(YaMapVC, RCTViewManager)
 RCT_EXPORT_VIEW_PROPERTY(pointsJson, NSString)
+RCT_EXPORT_VIEW_PROPERTY(styleJson, NSString)
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber)
 RCT_EXPORT_VIEW_PROPERTY(onPressMarker, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onMapPressed, RCTBubblingEventBlock)

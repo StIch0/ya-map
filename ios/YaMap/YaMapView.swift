@@ -110,6 +110,10 @@ final class YaMapView: UIView {
     self.currentZoom = self.startZoom
   }
   
+  func setStyleJson(_ styleJson: String){
+    mapView.mapWindow.map.setMapStyleWithStyle(styleJson)
+  }
+  
   func setPointsJson(_ json: String) {
     do {
       let data = Data(json.utf8)
