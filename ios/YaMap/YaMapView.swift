@@ -253,7 +253,7 @@ final class YaMapView: UIView {
     let countText = String(clusterSize)
     let countTextAttributes: [NSAttributedString.Key: Any] = [
       .foregroundColor: UIColor.black,
-      .font: Constants.clusterCountFont
+      .font: UIFont.boldSystemFont(ofSize: 11)
     ]
     let countTextSize = countText.size(withAttributes: countTextAttributes)
     
