@@ -89,7 +89,6 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
         }
 
         override fun onObjectUpdated(userLocationView: UserLocationView, p1: ObjectEvent) {
-            updateUserLocationIcon(userLocationView)
         }
     }
 
@@ -217,6 +216,10 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
                 map.cameraPosition.tilt
             )
         )
+    }
+
+    fun setStyle(style: String) {
+        map.setMapStyle(style)
     }
 
     fun setCenter(lat: Double, lon: Double, zoom: Float) {
