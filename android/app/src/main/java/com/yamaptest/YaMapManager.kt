@@ -1,11 +1,7 @@
 package com.yamaptest
 
-import android.app.Activity
-import android.content.pm.PackageManager
-import android.graphics.Paint.Style
+import android.util.Log
 import android.view.View
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.uimanager.SimpleViewManager
@@ -32,7 +28,7 @@ class YaMapManager(
     @ReactProp(name = "zoom")
     fun setZoom(view: View?, zoom: Int?) {
         if (zoom != null) {
-            (view as? YaMapVC)?.setZoom(zoom.toFloat())
+            //(view as? YaMapVC)?.setZoom(zoom.toFloat())
         }
     }
 
@@ -50,12 +46,16 @@ class YaMapManager(
     override fun receiveCommand(view: YaMapVC, commandId: String, args: ReadableArray?) {
         super.receiveCommand(view, commandId, args)
         if (commandId == "setCenter" && args != null) {
+            Log.e("Batman", args.toString())
             val center = args.getMap(0)
             view.setCenter(
                 center.getDouble("lat"),
                 center.getDouble("lon"),
                 args.getDouble(1).toFloat()
             )
+        }
+        if (commandId == "resetSelectedId") {
+            view.resetSelectedId()
         }
     }
 

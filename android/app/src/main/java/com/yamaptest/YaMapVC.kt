@@ -19,6 +19,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
+import com.yandex.mapkit.Animation
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
@@ -132,7 +133,9 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
                 map.cameraPosition.zoom + 2,
                 map.cameraPosition.azimuth,
                 map.cameraPosition.tilt
-            )
+            ),
+            Animation(Animation.Type.SMOOTH, 0.3f),
+            null
         )
         true
     }
@@ -155,6 +158,7 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
     }
 
     init {
+        onStart()
         map.addCameraListener(this)
         map.addInputListener(inputListener)
 
@@ -305,4 +309,11 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
 
     private fun YaMapPointModelItem.getPrice() =
         moneyFormatter.format(apartTariffs.firstOrNull { it.code == "sum" }?.priceFewDays ?: 0)
+
+    fun resetSelectedId() {
+        lastClickedMarker?.let { (marker, item) ->
+            marker.setMarkerIcon(item, false)
+        }
+        lastClickedMarker = null
+    }
 }
