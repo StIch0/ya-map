@@ -276,11 +276,6 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
         userLocationMarker = map.mapObjects.addPlacemark(point).apply {
             setIcon(ImageProvider.fromResource(context, R.mipmap.me))
         }
-        setCenter(
-            point.latitude,
-            point.longitude,
-            map.cameraPosition.zoom
-        )
     }
 
     override fun onMapLoaded(p0: MapLoadStatistics) {
