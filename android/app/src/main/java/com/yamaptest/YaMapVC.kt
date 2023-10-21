@@ -1,19 +1,25 @@
 package com.yamaptest
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PointF
+import android.os.Looper
 import android.util.Log
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
-import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.layers.ObjectEvent
 import com.yandex.mapkit.map.CameraListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.CameraUpdateReason
@@ -27,20 +33,13 @@ import com.yandex.mapkit.map.MapLoadedListener
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
-import com.yandex.mapkit.user_location.UserLocationLayer
-import com.yandex.mapkit.user_location.UserLocationObjectListener
-import com.yandex.mapkit.user_location.UserLocationView
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
 import java.text.NumberFormat
 import java.util.Locale
-import com.yamaptest.R
-import com.yandex.mapkit.location.LocationManager
 
 class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedListener {
     private var pointList: YaMapPointModel = YaMapPointModel()
-    private var userLocationLayer: UserLocationLayer
-    private var locationManager: LocationManager
     private val moneyFormatter = NumberFormat.getCurrencyInstance(Locale("RU", "RU")).apply {
         maximumFractionDigits = 0
     }
@@ -80,18 +79,6 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
         override fun onMapLongTap(map: Map, point: Point) {}
     }
 
-    private val userLocationObjectListener = object : UserLocationObjectListener {
-        override fun onObjectAdded(userLocationView: UserLocationView) {
-            updateUserLocationIcon(userLocationView)
-        }
-
-        override fun onObjectRemoved(p0: UserLocationView) {
-        }
-
-        override fun onObjectUpdated(userLocationView: UserLocationView, p1: ObjectEvent) {
-        }
-    }
-
     private val clusterListener = ClusterListener { cluster ->
         cluster.appearance.setView(
             ViewProvider(
@@ -106,7 +93,11 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
                         layoutParams = params
                         text = cluster.placemarks.size.toString()
                         setTextColor(context.resources.getColor(R.color.dark))
-                        textSize = 14f
+                        textSize = when (cluster.placemarks.size.toString().length) {
+                            5 -> 8f
+                            4 -> 10f
+                            else -> 14f
+                        }
                         gravity = Gravity.CENTER
                     })
                     addView(TextView(context).apply {
@@ -148,17 +139,42 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
     private val clusterizedCollection =
         map.mapObjects.addClusterizedPlacemarkCollection(clusterListener)
 
+    private var userLocationMarker: PlacemarkMapObject? = null
+
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    private val locationRequest = LocationRequest.Builder(60000)
+        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+        .build()
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            for (location in locationResult.locations) {
+                updateUserLocationIcon(Point(location.latitude, location.longitude))
+            }
+        }
+    }
+
     init {
         map.addCameraListener(this)
         map.addInputListener(inputListener)
 
-        val mapKit = MapKitFactory.getInstance()
-        userLocationLayer = mapKit.createUserLocationLayer(mapWindow)
-        userLocationLayer.isVisible = true
-        userLocationLayer.isHeadingEnabled = true
-        userLocationLayer.setObjectListener(userLocationObjectListener)
-
-        locationManager = mapKit.createLocationManager()
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.lastLocation.addOnSuccessListener {
+                updateUserLocationIcon(Point(it.latitude, it.longitude))
+            }
+        }
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
 
     override fun onCameraPositionChanged(
@@ -243,8 +259,7 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
         clusterizedCollection.clear()
         pointList.forEach {
             val point = Point(it.pos.lat, it.pos.lon)
-            clusterizedCollection.addPlacemark().apply {
-                geometry = point
+            clusterizedCollection.addPlacemark(point).apply {
                 setMarkerIcon(it, false)
                 //setIcon(ImageProvider.fromResource(context, R.drawable.test_point))
                 userData = it
@@ -254,14 +269,18 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
         clusterizedCollection.clusterPlacemarks(100.0, 17)
     }
 
-    private fun updateUserLocationIcon(userLocationView: UserLocationView) {
-        Log.d("Batman", "updateUserLocationIcon")
+    private fun updateUserLocationIcon(point: Point) {
+        userLocationMarker?.let {
+            map.mapObjects.remove(it)
+        }
+        userLocationMarker = map.mapObjects.addPlacemark(point).apply {
+            setIcon(ImageProvider.fromResource(context, R.mipmap.me))
+        }
         setCenter(
-            userLocationView.pin.geometry.latitude,
-            userLocationView.pin.geometry.latitude,
+            point.latitude,
+            point.longitude,
             map.cameraPosition.zoom
         )
-        userLocationView.pin.setIcon(ImageProvider.fromResource(context, R.mipmap.ic_user_location))
     }
 
     override fun onMapLoaded(p0: MapLoadStatistics) {

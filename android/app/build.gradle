@@ -156,7 +156,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation 'com.google.android.gms:play-services-location:21.0.1'
-    implementation 'com.yandex.android:maps.mobile:4.4.0-lite'
+    implementation 'com.yandex.android:maps.mobile:4.2.2-full'
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("com.facebook.soloader:soloader:0.10.5")
     implementation("androidx.activity:activity-ktx:1.7.2")
