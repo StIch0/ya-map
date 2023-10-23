@@ -47,7 +47,7 @@ final class YaMapView: UIView {
     }
   }
   
-  private var startZoom: Float = 12.0
+  private var startZoom: Float = 2.0
   private var currentZoom: Float?
   
   private var clusterZoom: Float? {
@@ -319,6 +319,10 @@ final class YaMapView: UIView {
     mapView?.mapWindow.map.move(
       with: YMKCameraPosition.init(target: .init(latitude: center.lat, longitude: center.lon), zoom: zoom, azimuth: 0, tilt: 0),
       animationType: .init(type: .linear, duration: 0.5))
+  }
+
+  func resetSelectedId(){
+    clearSelectedMark()
   }
   
   private func clearSelectedMark() {

@@ -33,6 +33,16 @@ class YaMapVC: RCTViewManager  {
     }
     
   }
+  
+  @objc func resetSelectedId(_ reactTag: NSNumber) {
+    self.bridge.uiManager.addUIBlock { manager, dict in
+      let view = dict?[reactTag] as? YaMapView
+  
+      view?.resetSelectedId()
+    }
+
+  }
+   
    
   override static func requiresMainQueueSetup() -> Bool {
       return true
