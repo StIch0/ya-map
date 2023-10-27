@@ -7,6 +7,7 @@ import { useColors } from '@app/ui/hooks/useColors';
 
 import { stackNavigatorOptionsService } from './services/StackNavigatorOptionsService';
 import type { RootStackParamsList } from './types';
+import { ExampleScreenFull } from '@app/screens/exampleScreenFull';
 
 const RootStack = createNativeStackNavigator<RootStackParamsList>();
 
@@ -26,10 +27,15 @@ const RootStackNavigator = () => {
   useColorScheme();
 
   return (
-    <RootStack.Navigator>
+    <RootStack.Navigator initialRouteName="ExampleScreen">
       <RootStack.Screen
         name="ExampleScreen"
         component={ExampleScreen}
+        options={exampleScreenOption}
+      />
+      <RootStack.Screen
+        name="ExampleScreenFull"
+        component={ExampleScreenFull}
         options={exampleScreenOption}
       />
     </RootStack.Navigator>
