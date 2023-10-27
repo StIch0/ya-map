@@ -2,6 +2,7 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 
 type RootStackParamsList = {
   ExampleScreen: undefined;
+  ExampleScreenFull: undefined;
 };
 
 type HeaderLeft<

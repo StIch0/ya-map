@@ -8,13 +8,13 @@ import {
   requireNativeComponent,
 } from 'react-native';
 import { ViewProps } from '@app/ui/components/View';
-import { ArrItem,arr } from './constants';
+import { ArrItem, arr } from './constants';
 
-const RCTCustomView = requireNativeComponent<
+export const RCTCustomView = requireNativeComponent<
   ViewProps & { pointsJson?: string; statusA?: boolean }
 >('YaMapVC');
 
-const ExampleScreen = () => {
+const ExampleScreen = ({ navigation }) => {
   const ref = useRef(null);
 
   const setCenter = (point: ArrItem['pos'], zoom: number) => {
@@ -37,10 +37,10 @@ const ExampleScreen = () => {
     <RCTCustomView
       ref={ref}
       onCameraPositionChangedEnd={(a) => {
-        console.log('a', a.nativeEvent);
+        navigation.navigate('ExampleScreenFull');
       }}
       style={{ flex: 1 }}
-      pointsJson={JSON.stringify(arr)}
+      pointsJson={''}
       zoom={12}
       onPressMarker={(a) => {
         console.log(a.nativeEvent);
