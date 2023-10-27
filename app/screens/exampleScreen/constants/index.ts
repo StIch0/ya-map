@@ -121555,6 +121555,24 @@ const arr: ArrItem[] = [
   },
 }));
 
-export { arr };
+type PartnerItem = {
+  __typename: string;
+  id: string;
+  name: string;
+  point: { __typename: string; lat: number; lon: number };
+};
+
+const partners: PartnerItem[] = Array.from({ length: 10 }, (_, k) => ({
+  __typename: `${k + 1}`,
+  id: `${k + 1}`,
+  name: `Name = ${k + 1}`,
+  point: {
+    __typename: `${k + 1}`,
+    lat: 48.474239 + k,
+    lon: 135.055963 + k,
+  },
+}));
+
+export { arr, partners };
 
 export { ArrItem };
