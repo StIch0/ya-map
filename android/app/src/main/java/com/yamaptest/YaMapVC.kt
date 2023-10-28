@@ -40,6 +40,7 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedListener {
+    private val density = context.resources.displayMetrics.density
     private var pointList: YaMapPointModel = YaMapPointModel()
     private val moneyFormatter = NumberFormat.getCurrencyInstance(Locale("RU", "RU")).apply {
         maximumFractionDigits = 0
@@ -84,14 +85,20 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
         cluster.appearance.setView(
             ViewProvider(
                 LinearLayout(context).apply {
-                    setBackgroundResource(R.mipmap.group)
+                    setBackgroundResource(R.drawable.group)
                     gravity = Gravity.CENTER_VERTICAL
+                    val params = LinearLayout.LayoutParams(
+                        LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
+                    )
+                    params.width = 120
+                    params.height = 34
+                    layoutParams = params
                     addView(TextView(context).apply {
-                        val params = LinearLayout.LayoutParams(
+                        val textParams = LinearLayout.LayoutParams(
                             LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
                         )
-                        params.width = 100
-                        layoutParams = params
+                        textParams.width = (34 * density).toInt()
+                        layoutParams = textParams
                         text = cluster.placemarks.size.toString()
                         setTextColor(context.resources.getColor(R.color.dark))
                         textSize = when (cluster.placemarks.size.toString().length) {
@@ -102,11 +109,11 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
                         gravity = Gravity.CENTER
                     })
                     addView(TextView(context).apply {
-                        val params = LinearLayout.LayoutParams(
+                        val priceParams = LinearLayout.LayoutParams(
                             LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
                         )
-                        params.weight = 1.0f
-                        layoutParams = params
+                        priceParams.weight = 1.0f
+                        layoutParams = priceParams
                         text = "от " + (cluster.placemarks.minBy {
                             (it.userData as YaMapPointModelItem).getPrice()
                         }.userData as YaMapPointModelItem).getPrice()
@@ -114,9 +121,8 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
                         setTextColor(context.resources.getColor(R.color.dark))
                         textSize = 14f
                         gravity = Gravity.CENTER
-                        setPadding(0, 0, 20, 15)
+                        setPadding(0, 0, 0, (5 * density).toInt())
                     })
-                    setPadding(4, 5, 5, 20)
                 }
             ),
             IconStyle().apply {
@@ -287,20 +293,35 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
 
     private fun PlacemarkMapObject.setMarkerIcon(item: YaMapPointModelItem, isClicked: Boolean) =
         setView(ViewProvider(TextView(context).apply {
+            val isBig = item.getPrice().length >= 8
+            val params = LinearLayout.LayoutParams(
+                LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
+            )
+            params.width = if (isBig) 65 else 59
+            params.height = if (isBig) 31 else 29
+            layoutParams = params
             text = item.getPrice()
             //text = moneyFormatter.format(10000)
             setTextColor(if (isClicked) Color.WHITE else context.resources.getColor(R.color.dark))
             val isClassic = item.apartmentAccessType.id == 2
             setBackgroundResource(
                 if (isClicked) {
-                    if (isClassic) R.mipmap.clicked_green_pin else R.mipmap.clicked_blue_pin
+                    if (isBig) {
+                        if (isClassic) R.drawable.clicked_green_big_pin else R.drawable.clicked_blue_big_pin
+                    } else {
+                        if (isClassic) R.drawable.clicked_green_pin else R.drawable.clicked_blue_pin
+                    }
                 } else {
-                    if (isClassic) R.mipmap.green_pin else R.mipmap.blue_pin
+                    if (isBig) {
+                        if (isClassic) R.drawable.green_big_pin else R.drawable.blue_big_pin
+                    } else {
+                        if (isClassic) R.drawable.green_pin else R.drawable.blue_pin
+                    }
                 }
             )
             textSize = 14f
             gravity = Gravity.CENTER
-            setPadding(10, 10, 15, 20)
+            setPadding(0, 0, 0, (5 * density).toInt())
         }),
             IconStyle().apply {
                 anchor = PointF(0.08f, 0.78f)
