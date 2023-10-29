@@ -1,83 +1,49 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { ExampleView } from './components/ExampleView';
 
 import {
-  PermissionsAndroid,
   UIManager,
   findNodeHandle,
   requireNativeComponent,
 } from 'react-native';
+import { ViewProps } from '@app/ui/components/View';
 import { ArrItem, arr } from './constants';
 
-const RCTCustomView = requireNativeComponent('YaMapVC');
+export const RCTCustomView = requireNativeComponent<
+  ViewProps & { pointsJson?: string; statusA?: boolean }
+>('YaMapVC');
 
-const requestCameraPermission = async () => {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: 'Location Permission',
-        message: 'App needs access to your location ',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
-      },
-    );
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-    } else {
-    }
-  } catch (err) {
-    console.warn(err);
-  }
-};
+const ExampleScreen = ({ navigation }) => {
+  const ref = useRef(null);
 
-const ExampleScreen = () => {
-  const nativeRef = useRef(null);
-
-  const setCenter = useCallback((point: ArrItem['pos'], zoom: number) => {
+  const setCenter = (point: ArrItem['pos'], zoom: number) => {
     UIManager.dispatchViewManagerCommand(
-      findNodeHandle(nativeRef.current),
-      'setCenter',
+      findNodeHandle(ref.current),
+      UIManager.getViewManagerConfig('YaMapVC').Commands.setCenter,
       [point, zoom],
     );
-  }, []);
+  };
 
-  useEffect(() => {
-    requestCameraPermission();
-  }, []);
-
-  useEffect(() => {
-    // setCenter(
-    //   {
-    //     lat: 48.4814433,
-    //     lon: 135.0720667,
-    //   },
-    //   12,
-    // );
-  }, []);
+  // useEffect(() => {
+  //   if (zoom >= 9) {
+  //     setList((prev) => prev.concat(secondPart));
+  //   } else if (zoom >= 12) {
+  //     setList((prev) => prev.concat(thridtPart));
+  //   }
+  // }, [zoom]);
 
   return (
     <RCTCustomView
-      ref={nativeRef}
+      ref={ref}
       onCameraPositionChangedEnd={(a) => {
-        console.log('a', a.nativeEvent);
+        navigation.navigate('ExampleScreenFull');
       }}
       style={{ flex: 1 }}
-      pointsJson={JSON.stringify(arr)}
+      pointsJson={''}
       zoom={12}
       onPressMarker={(a) => {
         console.log(a.nativeEvent);
-      }}
-      styleJson={JSON.stringify([
-        {
-          // featureType: 'all',
-          stylers: {
-            saturation: -1,
-            lightness: 0.25,
-          },
-        },
-      ])}
-      onMapPressed={() => {
-        console.log('onMapPressed');
       }}
     />
   );
