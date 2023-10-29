@@ -34,6 +34,7 @@ const ExampleScreenFull = () => {
       style={{ flex: 1 }}
       pointsJson={JSON.stringify(arr)}
       zoom={12}
+      markerType="apartments"
       onPressMarker={(a) => {
         console.log(a.nativeEvent);
       }}
