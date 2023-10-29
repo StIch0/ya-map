@@ -8,7 +8,7 @@ import {
   requireNativeComponent,
 } from 'react-native';
 import { ViewProps } from '@app/ui/components/View';
-import { ArrItem, arr } from './constants';
+import { ArrItem, arr, partners } from './constants';
 
 export const RCTCustomView = requireNativeComponent<
   ViewProps & { pointsJson?: string; statusA?: boolean }
@@ -37,10 +37,10 @@ const ExampleScreen = ({ navigation }) => {
     <RCTCustomView
       ref={ref}
       onCameraPositionChangedEnd={(a) => {
-        navigation.navigate('ExampleScreenFull');
+        // navigation.navigate('ExampleScreenFull');
       }}
       style={{ flex: 1 }}
-      pointsJson={''}
+      pointsJson={JSON.stringify(partners)}
       zoom={12}
       onPressMarker={(a) => {
         console.log(a.nativeEvent);
