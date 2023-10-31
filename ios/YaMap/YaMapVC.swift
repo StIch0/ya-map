@@ -14,10 +14,6 @@ import Combine
 //@available(iOS 15.0, *)
 @objc(YaMapVC)
 class YaMapVC: RCTViewManager  {
-    
-  let mapView = YaMapView()
- 
-  
   
   override init() {
     super.init()
@@ -31,25 +27,22 @@ class YaMapVC: RCTViewManager  {
       let centerPoint: Point = Point(lat: center["lat"] as? Double ?? 0, lon: center["lon"] as? Double ?? 0 )
       view?.setCenter(center: centerPoint, zoom: Float(zoom))
     }
-    
   }
   
   @objc func resetSelectedId(_ reactTag: NSNumber) {
     self.bridge.uiManager.addUIBlock { manager, dict in
       let view = dict?[reactTag] as? YaMapView
-  
+      
       view?.resetSelectedId()
     }
-
+    
   }
-   
    
   override static func requiresMainQueueSetup() -> Bool {
       return true
     }
   
-  
   override func view() -> UIView! {
-    return mapView
+    return YaMapView()
   }
 }
