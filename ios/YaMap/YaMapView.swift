@@ -122,11 +122,18 @@ final class YaMapView: UIView {
       let throwables = try decoder.decode([Throwable<PointItem>].self, from: data)
       let points = throwables.compactMap { try? $0.result.get() }
       
+      clearMapObjects()
       makePlaceMarks(points: points)
       
     } catch let error as NSError {
       print("Failed to load: \(error.localizedDescription)")
     }
+  }
+  
+  private func clearMapObjects() {
+    clearSelectedMark()
+    let mapObjects = mapView.mapWindow.map.mapObjects
+    mapObjects.clear()
   }
   
   private func makePlaceMarks(points: [PointItem]) {
