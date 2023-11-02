@@ -503,6 +503,7 @@ extension YaMapView: YMKUserLocationObjectListener {
             scale: 1,
             tappableArea: nil))
     
+    view.accuracyCircle.fillColor = .clear
   }
   
   func onObjectRemoved(with view: YMKUserLocationView) {
