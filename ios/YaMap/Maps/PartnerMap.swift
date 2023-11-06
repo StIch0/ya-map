@@ -36,8 +36,38 @@ struct PartnerMap: Map {
     
   }
   
-  func makeMarkerImage(_ pointItem: PointItem, selectedMarker: Bool) -> UIImage? {
-    guard let pointName = pointItem.name else { return nil }
+  func makePlaceMarks(points: [Decodable], collection: YMKClusterizedPlacemarkCollection, listener: YMKMapObjectTapListener) {
+    guard let points = points as? [PointPartners] else { return }
+    
+    points.forEach {
+      guard let marker = makeMarkerImage($0, selectedMarker: false) else { return }
+      
+      let placemark = collection.addPlacemark(
+        with: YMKPoint(
+          latitude: $0.pos.lat,
+          longitude: $0.pos.lon
+        ),
+        image: marker,
+        style: YMKIconStyle(
+          anchor: CGPoint(x: 0.0, y: 1.0) as NSValue,
+          rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil)
+      )
+      
+      placemark.userData = $0
+      placemark.addTapListener(with: listener)
+    }
+    
+    collection.clusterPlacemarks(withClusterRadius: 35, minZoom: 20)
+  }
+  
+  
+  func makeMarkerImage(_ pointItem: Decodable, selectedMarker: Bool) -> UIImage? {
+    guard let point = pointItem as? PointPartners else { return nil }
+    
+    
+    debugPrint(point)
+    
+    let pointName = point.name
 
     let textMarker = componentTextMarker(name: pointName)
     let firstLineText = configureTextMarker(name: textMarker.firstLine, selected: selectedMarker)

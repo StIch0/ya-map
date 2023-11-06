@@ -5,6 +5,10 @@
 //  Created by Pavel on 16.08.2023.
 //
 
+protocol PointCommon: Decodable {
+  var id: Int { get }
+  var pos: Point { get }
+}
 
 
 struct Point: Decodable {
@@ -32,11 +36,15 @@ struct ApartmentAccessType: Decodable {
   let __typename: String
 }
 
-struct PointItem: Decodable {
+struct PointApartment: PointCommon {
   let id: Int
   let pos: Point
   let apartTariffs: [TariffItem]
   let apartmentAccessType: ApartmentAccessType
+}
+
+struct Points: Decodable {
+  let points: [PointApartment]
 }
 
 struct Throwable<T: Decodable>: Decodable {
@@ -45,4 +53,10 @@ struct Throwable<T: Decodable>: Decodable {
     init(from decoder: Decoder) throws {
         result = Result(catching: { try T(from: decoder) })
     }
+}
+
+struct PointPartners: PointCommon {
+  let id: Int
+  let pos: Point
+  let name: String
 }

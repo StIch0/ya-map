@@ -7,19 +7,15 @@
 
 import YandexMapsMobile
 
+enum MapType: String {
+  case apartments = "apartments"
+  case partners = "partners"
+}
+
 struct MapFactory {
-  
-  enum MapType: String {
-    case apartments = "apartments"
-    case partners = "partners"
-  }
-  
-  func makeMap(mapType: String) -> Map? {
-    guard let map = MapType(rawValue: mapType) else {
-      debugPrint("ОШИБКА - Карта не создана в методе \(#function)")
-      return nil
-    }
-    switch map {
+
+  func make(mapType: MapType) -> Map {
+    switch mapType {
     case .apartments:
       return ApartmentMap()
     case .partners:
@@ -29,7 +25,7 @@ struct MapFactory {
 }
 
 protocol Map {
-  func makeMarkerImage(_ pointItem: PointItem, selectedMarker: Bool) -> UIImage?
+  func makeMarkerImage(_ pointItem: Decodable, selectedMarker: Bool) -> UIImage?
   func makeClusterImage(cluster: YMKCluster) -> UIImage
+  func makePlaceMarks(points: [Decodable], collection: YMKClusterizedPlacemarkCollection, listener: YMKMapObjectTapListener)
 }
-

@@ -8,7 +8,6 @@
 import YandexMapsMobile
 
 struct ApartmentMap: Map {
-  
   private enum Constants {
     enum Image {
       static let classicMarker = UIImage(named: "marker-classic")
@@ -34,7 +33,37 @@ struct ApartmentMap: Map {
     }
   }
   
-  func makeMarkerImage(_ pointItem: PointItem, selectedMarker: Bool) -> UIImage? {
+  func makePlaceMarks(
+    points: [Decodable],
+    collection: YMKClusterizedPlacemarkCollection,
+    listener: YMKMapObjectTapListener
+  ) {
+    guard let points = points as? [PointApartment] else { return }
+    
+    points.forEach {
+      guard let marker = makeMarkerImage($0, selectedMarker: false) else { return }
+      
+      let placemark = collection.addPlacemark(
+        with: YMKPoint(
+          latitude: $0.pos.lat,
+          longitude: $0.pos.lon
+        ),
+        image: marker,
+        style: YMKIconStyle(
+          anchor: CGPoint(x: 0.0, y: 1.0) as NSValue,
+          rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil)
+      )
+      
+      placemark.userData = $0
+      placemark.addTapListener(with: listener)
+    }
+    
+    collection.clusterPlacemarks(withClusterRadius: 35, minZoom: 20)
+  }
+  
+  func makeMarkerImage(_ pointItem: Decodable, selectedMarker: Bool) -> UIImage? {
+    guard let pointItem = pointItem as? PointApartment else { return nil }
+    
     guard
       let image = configureImageMarker(
         pointItem: pointItem,
@@ -76,7 +105,7 @@ struct ApartmentMap: Map {
     return newImage
   }
   
-  private func calculatePrice(pointItem: PointItem) -> Int {
+  private func calculatePrice(pointItem: PointApartment) -> Int {
     let tariff = pointItem.apartTariffs.first { $0.code == "sum" }
     return tariff?.priceFewDays ?? 0
   }
@@ -103,9 +132,11 @@ struct ApartmentMap: Map {
   }
   
   private func configureImageMarker(
-    pointItem: PointItem,
+    pointItem: Decodable,
     selectedMarker: Bool
   ) -> UIImage? {
+    guard let pointItem = pointItem as? PointApartment else { return nil }
+    
     let isClassic = pointItem.apartmentAccessType.id == .classic
     
     switch (isClassic, selectedMarker) {
@@ -194,7 +225,7 @@ struct ApartmentMap: Map {
   
   private func clusterMinPrice(cluster: YMKCluster) -> Int {
     let pointItems: [Int] = cluster.placemarks.compactMap {
-      guard let point = $0.userData as? PointItem else { return nil }
+      guard let point = $0.userData as? PointApartment else { return nil }
       return calculatePrice(pointItem: point)
     }
     
