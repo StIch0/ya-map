@@ -21,6 +21,9 @@
 		7C426787B0084EE3832E79B7 /* Roboto-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6FDD3D639A8F469E93FE160D /* Roboto-LightItalic.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		89C90168750741FC84D91E68 /* Roboto-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A8BF394761AF414CAE204D2E /* Roboto-Thin.ttf */; };
+		920643272AEE248200FAE8B3 /* MapFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920643262AEE248200FAE8B3 /* MapFactory.swift */; };
+		9206432B2AEE2A7B00FAE8B3 /* ApartmentMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9206432A2AEE2A7B00FAE8B3 /* ApartmentMap.swift */; };
+		9206432D2AEE2ABC00FAE8B3 /* PartnerMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9206432C2AEE2ABC00FAE8B3 /* PartnerMap.swift */; };
 		923F1EA32AD279040097153E /* schema.graphqls in Resources */ = {isa = PBXBuildFile; fileRef = 923F1EA22AD279040097153E /* schema.graphqls */; };
 		923F1EA52AD3B0BD0097153E /* Extensions+Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923F1EA42AD3B0BD0097153E /* Extensions+Global.swift */; };
 		A43C5187EF1B4DD687355C2C /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2F080786CAC04381A91252C3 /* Roboto-Medium.ttf */; };
@@ -32,7 +35,6 @@
 		E9200C4D2A8C95A00007A9B5 /* YaMapVC.m in Sources */ = {isa = PBXBuildFile; fileRef = E9200C4C2A8C95A00007A9B5 /* YaMapVC.m */; };
 		E9200C4F2A8C962E0007A9B5 /* YaMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9200C4E2A8C962E0007A9B5 /* YaMapView.swift */; };
 		E9200C532A8C9FF40007A9B5 /* PointModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9200C522A8C9FF40007A9B5 /* PointModels.swift */; };
-		E9200C572A8DDE410007A9B5 /* Marker.xib in Resources */ = {isa = PBXBuildFile; fileRef = E9200C562A8DDE410007A9B5 /* Marker.xib */; };
 		E9E276862A944D3E00BB9D07 /* Apartments.graphql in Resources */ = {isa = PBXBuildFile; fileRef = E9E276852A944D3E00BB9D07 /* Apartments.graphql */; };
 		E9E276892A944E9300BB9D07 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = E9E276882A944E9300BB9D07 /* Apollo */; };
 		E9E2768B2A944E9300BB9D07 /* ApolloWebSocket in Frameworks */ = {isa = PBXBuildFile; productRef = E9E2768A2A944E9300BB9D07 /* ApolloWebSocket */; };
@@ -71,6 +73,9 @@
 		6FDD3D639A8F469E93FE160D /* Roboto-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-LightItalic.ttf"; path = "../assets/fonts/Roboto-LightItalic.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = YaMapTest/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		83AE061407B44593ABD0D3AF /* Roboto-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Italic.ttf"; path = "../assets/fonts/Roboto-Italic.ttf"; sourceTree = "<group>"; };
+		920643262AEE248200FAE8B3 /* MapFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFactory.swift; sourceTree = "<group>"; };
+		9206432A2AEE2A7B00FAE8B3 /* ApartmentMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApartmentMap.swift; sourceTree = "<group>"; };
+		9206432C2AEE2ABC00FAE8B3 /* PartnerMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerMap.swift; sourceTree = "<group>"; };
 		923F1EA22AD279040097153E /* schema.graphqls */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = schema.graphqls; sourceTree = "<group>"; };
 		923F1EA42AD3B0BD0097153E /* Extensions+Global.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions+Global.swift"; sourceTree = "<group>"; };
 		9BB6172ABA684E3A957A4D51 /* Roboto-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-BoldItalic.ttf"; path = "../assets/fonts/Roboto-BoldItalic.ttf"; sourceTree = "<group>"; };
@@ -84,7 +89,6 @@
 		E9200C4C2A8C95A00007A9B5 /* YaMapVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YaMapVC.m; sourceTree = "<group>"; };
 		E9200C4E2A8C962E0007A9B5 /* YaMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaMapView.swift; sourceTree = "<group>"; };
 		E9200C522A8C9FF40007A9B5 /* PointModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointModels.swift; sourceTree = "<group>"; };
-		E9200C562A8DDE410007A9B5 /* Marker.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Marker.xib; sourceTree = "<group>"; };
 		E9E276852A944D3E00BB9D07 /* Apartments.graphql */ = {isa = PBXFileReference; lastKnownFileType = text; path = Apartments.graphql; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -136,7 +140,6 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
-				E9200C562A8DDE410007A9B5 /* Marker.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				923F1EA42AD3B0BD0097153E /* Extensions+Global.swift */,
 				E9E2768E2A945F1C00BB9D07 /* YaMap */,
@@ -188,6 +191,32 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		920643282AEE24A500FAE8B3 /* Maps */ = {
+			isa = PBXGroup;
+			children = (
+				920643262AEE248200FAE8B3 /* MapFactory.swift */,
+				9206432A2AEE2A7B00FAE8B3 /* ApartmentMap.swift */,
+				9206432C2AEE2ABC00FAE8B3 /* PartnerMap.swift */,
+			);
+			path = Maps;
+			sourceTree = "<group>";
+		};
+		920643292AEE259E00FAE8B3 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E9200C522A8C9FF40007A9B5 /* PointModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		9206432E2AEE32C200FAE8B3 /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				E9200C4C2A8C95A00007A9B5 /* YaMapVC.m */,
+			);
+			path = Interface;
+			sourceTree = "<group>";
+		};
 		B115D8F82B3B4F4098E172BC /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -230,10 +259,11 @@
 		E9E2768E2A945F1C00BB9D07 /* YaMap */ = {
 			isa = PBXGroup;
 			children = (
-				E9200C4C2A8C95A00007A9B5 /* YaMapVC.m */,
 				E9200C4A2A8C910D0007A9B5 /* YaMapVC.swift */,
 				E9200C4E2A8C962E0007A9B5 /* YaMapView.swift */,
-				E9200C522A8C9FF40007A9B5 /* PointModels.swift */,
+				920643282AEE24A500FAE8B3 /* Maps */,
+				920643292AEE259E00FAE8B3 /* Models */,
+				9206432E2AEE32C200FAE8B3 /* Interface */,
 			);
 			path = YaMap;
 			sourceTree = "<group>";
@@ -353,7 +383,6 @@
 				1646ED089EF346D691F831F7 /* Roboto-MediumItalic.ttf in Resources */,
 				AB99E786442D48D893A4E863 /* Roboto-Regular.ttf in Resources */,
 				E9E276862A944D3E00BB9D07 /* Apartments.graphql in Resources */,
-				E9200C572A8DDE410007A9B5 /* Marker.xib in Resources */,
 				89C90168750741FC84D91E68 /* Roboto-Thin.ttf in Resources */,
 				C101FD145E5C440381B6CBDB /* Roboto-ThinItalic.ttf in Resources */,
 			);
@@ -525,11 +554,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				923F1EA52AD3B0BD0097153E /* Extensions+Global.swift in Sources */,
+				9206432D2AEE2ABC00FAE8B3 /* PartnerMap.swift in Sources */,
+				9206432B2AEE2A7B00FAE8B3 /* ApartmentMap.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				E9200C4F2A8C962E0007A9B5 /* YaMapView.swift in Sources */,
 				E9200C4D2A8C95A00007A9B5 /* YaMapVC.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				E9200C4B2A8C910D0007A9B5 /* YaMapVC.swift in Sources */,
+				920643272AEE248200FAE8B3 /* MapFactory.swift in Sources */,
 				E9200C532A8C9FF40007A9B5 /* PointModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -605,6 +637,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = L357XYMB3B;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = YaMapTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -632,6 +665,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = L357XYMB3B;
 				INFOPLIST_FILE = YaMapTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

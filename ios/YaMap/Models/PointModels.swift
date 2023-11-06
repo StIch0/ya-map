@@ -5,6 +5,8 @@
 //  Created by Pavel on 16.08.2023.
 //
 
+
+
 struct Point: Decodable {
   let lat: Double
   let lon: Double
@@ -31,12 +33,11 @@ struct ApartmentAccessType: Decodable {
 }
 
 struct PointItem: Decodable {
-  let id: Int;
+  let id: Int
   let pos: Point
   let apartTariffs: [TariffItem]
   let apartmentAccessType: ApartmentAccessType
 }
-
 
 struct Throwable<T: Decodable>: Decodable {
     let result: Result<T, Error>

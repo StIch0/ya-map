@@ -11,6 +11,7 @@
 #import <React/RCTViewManager.h>
  
 @interface RCT_EXTERN_MODULE(YaMapVC, RCTViewManager)
+RCT_EXPORT_VIEW_PROPERTY(markerType, NSString)
 RCT_EXPORT_VIEW_PROPERTY(pointsJson, NSString)
 RCT_EXPORT_VIEW_PROPERTY(styleJson, NSString)
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber)

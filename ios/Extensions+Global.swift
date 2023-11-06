@@ -69,3 +69,9 @@ extension UIImage {
     return newImage
   }
 }
+
+extension String {
+  func width() -> CGFloat {
+    (self as NSString).size().width
+  }
+}
