@@ -11,6 +11,7 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
+import androidx.core.content.res.ResourcesCompat
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
@@ -40,6 +41,7 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedListener {
+    private val font = ResourcesCompat.getFont(context, R.font.roboto_medium)
     private val density = context.resources.displayMetrics.density
     private var pointList: YaMapPointModel = YaMapPointModel()
     private val moneyFormatter = NumberFormat.getCurrencyInstance(Locale("RU", "RU")).apply {
@@ -85,13 +87,13 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
         cluster.appearance.setView(
             ViewProvider(
                 LinearLayout(context).apply {
-                    setBackgroundResource(R.drawable.group)
+                    setBackgroundResource(R.mipmap.group)
                     gravity = Gravity.CENTER_VERTICAL
                     val params = LinearLayout.LayoutParams(
                         LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT
                     )
-                    params.width = 120
-                    params.height = 34
+                    params.width = 126
+                    params.height = 40
                     layoutParams = params
                     addView(TextView(context).apply {
                         val textParams = LinearLayout.LayoutParams(
@@ -106,7 +108,9 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
                             4 -> 10f
                             else -> 14f
                         }
+                        typeface = font
                         gravity = Gravity.CENTER
+                        setPadding((5 * density).toInt(), 0, 0, (5 * density).toInt())
                     })
                     addView(TextView(context).apply {
                         val priceParams = LinearLayout.LayoutParams(
@@ -120,13 +124,14 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
                         //text = "от " + moneyFormatter.format(10000)
                         setTextColor(context.resources.getColor(R.color.dark))
                         textSize = 14f
+                        typeface = font
                         gravity = Gravity.CENTER
-                        setPadding(0, 0, 0, (5 * density).toInt())
+                        setPadding(0, 0, 0, (10 * density).toInt())
                     })
                 }
             ),
             IconStyle().apply {
-                anchor = PointF(0.16f, 0.6f)
+                anchor = PointF(0.16f, 0.5f)
             }
         )
         cluster.addClusterTapListener(clusterTapListener)
@@ -307,19 +312,20 @@ class YaMapVC(context: Context) : MapView(context), CameraListener, MapLoadedLis
             setBackgroundResource(
                 if (isClicked) {
                     if (isBig) {
-                        if (isClassic) R.drawable.clicked_green_big_pin else R.drawable.clicked_blue_big_pin
+                        if (isClassic) R.mipmap.clicked_green_big_pin else R.mipmap.clicked_blue_big_pin
                     } else {
-                        if (isClassic) R.drawable.clicked_green_pin else R.drawable.clicked_blue_pin
+                        if (isClassic) R.mipmap.clicked_green_pin else R.mipmap.clicked_blue_pin
                     }
                 } else {
                     if (isBig) {
-                        if (isClassic) R.drawable.green_big_pin else R.drawable.blue_big_pin
+                        if (isClassic) R.mipmap.green_big_pin else R.mipmap.blue_big_pin
                     } else {
-                        if (isClassic) R.drawable.green_pin else R.drawable.blue_pin
+                        if (isClassic) R.mipmap.green_pin else R.mipmap.blue_pin
                     }
                 }
             )
             textSize = 14f
+            typeface = font
             gravity = Gravity.CENTER
             setPadding(0, 0, 0, (5 * density).toInt())
         }),
