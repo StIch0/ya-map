@@ -7,6 +7,12 @@
 
 import YandexMapsMobile
 
+protocol Map {
+  func makeMarkerImage(_ pointItem: Decodable, selectedMarker: Bool) -> UIImage?
+  func makeClusterImage(cluster: YMKCluster) -> UIImage
+  func makePlaceMarks(points: [Decodable], collection: YMKClusterizedPlacemarkCollection, listener: YMKMapObjectTapListener)
+}
+
 enum MapType: String {
   case apartments = "apartments"
   case partners = "partners"
@@ -22,10 +28,4 @@ struct MapFactory {
       return PartnerMap()
     }
   }
-}
-
-protocol Map {
-  func makeMarkerImage(_ pointItem: Decodable, selectedMarker: Bool) -> UIImage?
-  func makeClusterImage(cluster: YMKCluster) -> UIImage
-  func makePlaceMarks(points: [Decodable], collection: YMKClusterizedPlacemarkCollection, listener: YMKMapObjectTapListener)
 }

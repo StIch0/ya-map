@@ -119,7 +119,7 @@ final class YaMapView: UIView {
   
   private func makePlaceMarks(points: [Decodable]) {
     guard let collection = mapView?.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(with: self) else { return }
-    
+
     map?.makePlaceMarks(points: points, collection: collection, listener: self)
   }
 
