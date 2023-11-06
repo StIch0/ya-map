@@ -121556,22 +121556,637 @@ const arr: ArrItem[] = [
 }));
 
 type PartnerItem = {
-  __typename: string;
-  id: string;
+  id: number;
   name: string;
-  point: { __typename: string; lat: number; lon: number };
+  point: { lat: number; lon: number };
 };
 
-const partners: PartnerItem[] = Array.from({ length: 10 }, (_, k) => ({
-  __typename: `${k + 1}`,
-  id: `${k + 1}`,
-  name: `Name = ${k + 1}`,
-  point: {
-    __typename: `${k + 1}`,
-    lat: 48.474239 + k,
-    lon: 135.055963 + k,
+const partners: PartnerItem[] = [
+  {
+    id: 35,
+    name: 'Барбершоп BRITVA Изумрудная',
+    point: {
+      lat: 55.872183,
+      lon: 37.684712,
+    },
   },
-}));
+  {
+    id: 27,
+    name: 'Сеть студий красоты City Nails',
+    point: {
+      lat: 55.738536,
+      lon: 37.48587,
+    },
+  },
+  {
+    id: 29,
+    name: 'BRITVA Котельники Белая Дача Парк',
+    point: {
+      lat: 55.659282,
+      lon: 37.875964,
+    },
+  },
+  {
+    id: 23,
+    name: 'BRITVA Аэропорт',
+    point: {
+      lat: 55.805508,
+      lon: 37.530238,
+    },
+  },
+  {
+    id: 28,
+    name: 'BRITVA Коломенская',
+    point: {
+      lat: 55.683518,
+      lon: 37.694863,
+    },
+  },
+  {
+    id: 33,
+    name: 'BRITVA Некрасовка',
+    point: {
+      lat: 55.702556,
+      lon: 37.909067,
+    },
+  },
+  {
+    id: 17,
+    name: 'Барбершоп BRITVA Трехгорка',
+    point: {
+      lat: 55.698624,
+      lon: 37.320715,
+    },
+  },
+  {
+    id: 24,
+    name: 'BRITVA Юго-Западная',
+    point: {
+      lat: 55.667873,
+      lon: 37.466063,
+    },
+  },
+  {
+    id: 34,
+    name: 'BRITVA Барбершоп',
+    point: {
+      lat: 55.790362,
+      lon: 37.458085,
+    },
+  },
+  {
+    id: 18,
+    name: 'Барбершоп BRITVA Филевский парк',
+    point: {
+      lat: 55.751644,
+      lon: 37.51626,
+    },
+  },
+  {
+    id: 19,
+    name: 'Барбершоп BRITVA Новогиреево',
+    point: {
+      lat: 55.754264,
+      lon: 37.817448,
+    },
+  },
+  {
+    id: 20,
+    name: 'Барбершоп BRITVA Новые Черемушки',
+    point: {
+      lat: 55.664842,
+      lon: 37.545024,
+    },
+  },
+  {
+    id: 21,
+    name: 'Барбершоп BRITVA Тульская',
+    point: {
+      lat: 55.709257,
+      lon: 37.618489,
+    },
+  },
+  {
+    id: 22,
+    name: 'BRITVA ВАРШАВСКАЯ',
+    point: {
+      lat: 55.658992,
+      lon: 37.618722,
+    },
+  },
+  {
+    id: 25,
+    name: 'Салон красоты Soda',
+    point: {
+      lat: 55.692024,
+      lon: 37.467509,
+    },
+  },
+  {
+    id: 26,
+    name: 'Студия маникюра и красоты SODA',
+    point: {
+      lat: 55.749902,
+      lon: 37.516719,
+    },
+  },
+  {
+    id: 31,
+    name: 'BRITVA Домодедовская',
+    point: {
+      lat: 55.599728,
+      lon: 37.724723,
+    },
+  },
+  {
+    id: 32,
+    name: 'BRITVA Лухмановская',
+    point: {
+      lat: 55.699218,
+      lon: 37.87953,
+    },
+  },
+  {
+    id: 36,
+    name: 'Студия маникюра NailMaker Bar',
+    point: {
+      lat: 55.594367,
+      lon: 37.605706,
+    },
+  },
+  {
+    id: 37,
+    name: 'Студия маникюра NailMaker Bar Арбатская',
+    point: {
+      lat: 55.754851,
+      lon: 37.601484,
+    },
+  },
+  {
+    id: 38,
+    name: 'Студия маникюра NailMaker Bar Аэропорт',
+    point: {
+      lat: 55.797286,
+      lon: 37.541027,
+    },
+  },
+  {
+    id: 39,
+    name: 'Студия маникюра NailMaker Bar Беляево ТЦ «Ареал»',
+    point: {
+      lat: 55.643632,
+      lon: 37.526259,
+    },
+  },
+  {
+    id: 40,
+    name: 'Студия маникюра NailMaker Bar Курская',
+    point: {
+      lat: 55.753488,
+      lon: 37.658994,
+    },
+  },
+  {
+    id: 43,
+    name: 'Студия маникюра NailMaker Bar м. Менделеевская',
+    point: {
+      lat: 55.78238,
+      lon: 37.598995,
+    },
+  },
+  {
+    id: 48,
+    name: 'Студия маникюра NailMaker Bar м. Преображенская площадь',
+    point: {
+      lat: 55.793895,
+      lon: 37.712075,
+    },
+  },
+  {
+    id: 41,
+    name: 'Студия маникюра NailMaker Bar Ленинский пр-кт',
+    point: {
+      lat: 55.708628,
+      lon: 37.586634,
+    },
+  },
+  {
+    id: 42,
+    name: 'Студия маникюра NailMaker Bar Лубянка',
+    point: {
+      lat: 55.757982,
+      lon: 37.627184,
+    },
+  },
+  {
+    id: 44,
+    name: 'Студия маникюра NailMaker Bar Митино',
+    point: {
+      lat: 55.843434,
+      lon: 37.363879,
+    },
+  },
+  {
+    id: 45,
+    name: 'Студия маникюра NailMaker Bar м. Октябрьское поле',
+    point: {
+      lat: 55.795995,
+      lon: 37.489589,
+    },
+  },
+  {
+    id: 80,
+    name: 'Cube.Moscow',
+    point: {
+      lat: 55.757369,
+      lon: 37.612991,
+    },
+  },
+  {
+    id: 87,
+    name: 'DUKH',
+    point: {
+      lat: 55.757521,
+      lon: 37.602328,
+    },
+  },
+  {
+    id: 46,
+    name: 'Студия маникюра NailMaker Bar м. Орехово',
+    point: {
+      lat: 55.610529,
+      lon: 37.697433,
+    },
+  },
+  {
+    id: 47,
+    name: 'Студия маникюра NailMaker Bar м. Павелецкая',
+    point: {
+      lat: 55.729447,
+      lon: 37.633895,
+    },
+  },
+  {
+    id: 49,
+    name: 'Студия маникюра NailMaker Bar в ТЦ «Гарден Мир»',
+    point: {
+      lat: 55.780122,
+      lon: 37.633634,
+    },
+  },
+  {
+    id: 50,
+    name: 'Студия маникюра NailMaker Bar м. Раменки',
+    point: {
+      lat: 55.69834,
+      lon: 37.498025,
+    },
+  },
+  {
+    id: 51,
+    name: 'Студия маникюра NailMaker Bar м.  Серпуховская',
+    point: {
+      lat: 55.726457,
+      lon: 37.628613,
+    },
+  },
+  {
+    id: 52,
+    name: 'Студия маникюра NailMaker Bar м. Сходненская',
+    point: {
+      lat: 55.849837,
+      lon: 37.43614,
+    },
+  },
+  {
+    id: 53,
+    name: 'Студия маникюра NailMaker Bar м. Таганская',
+    point: {
+      lat: 55.738637,
+      lon: 37.651133,
+    },
+  },
+  {
+    id: 54,
+    name: 'Студия маникюра NailMaker Bar м. Тропарево',
+    point: {
+      lat: 55.644145,
+      lon: 37.473492,
+    },
+  },
+  {
+    id: 88,
+    name: 'Ssollo.ru',
+    point: {
+      lat: 55.753316,
+      lon: 37.58067,
+    },
+  },
+  {
+    id: 55,
+    name: 'Студия маникюра NailMaker Bar м. Ясенево',
+    point: {
+      lat: 55.608816,
+      lon: 37.535412,
+    },
+  },
+  {
+    id: 56,
+    name: 'Студия маникюра NailMaker Bar Химки',
+    point: {
+      lat: 55.892158,
+      lon: 37.438682,
+    },
+  },
+  {
+    id: 57,
+    name: 'Студия маникюра NailMaker Bar м. Новокосино',
+    point: {
+      lat: 55.745899,
+      lon: 37.861573,
+    },
+  },
+  {
+    id: 58,
+    name: 'Студия маникюра NailMaker Bar Реутов',
+    point: {
+      lat: 55.749435,
+      lon: 37.877006,
+    },
+  },
+  {
+    id: 86,
+    name: 'Billion City',
+    point: {
+      lat: 55.748179,
+      lon: 37.540245,
+    },
+  },
+  {
+    id: 89,
+    name: 'NEXT',
+    point: {
+      lat: 55.80954,
+      lon: 37.74092,
+    },
+  },
+  {
+    id: 59,
+    name: 'Студия маникюра NailMaker Bar м. Верхние Лихоборы',
+    point: {
+      lat: 55.860469,
+      lon: 37.556181,
+    },
+  },
+  {
+    id: 60,
+    name: 'Раковарня "Клешни и Хвосты"',
+    point: {
+      lat: 55.770431,
+      lon: 37.599193,
+    },
+  },
+  {
+    id: 61,
+    name: 'Мясо&рыба',
+    point: {
+      lat: 55.766359,
+      lon: 37.600073,
+    },
+  },
+  {
+    id: 62,
+    name: 'Ресторан "Каспийка"',
+    point: {
+      lat: 55.76331,
+      lon: 37.635925,
+    },
+  },
+  {
+    id: 63,
+    name: '"MUNTERRA"  ​Эклектичный лаундж-бар',
+    point: {
+      lat: 55.766825,
+      lon: 37.651645,
+    },
+  },
+  {
+    id: 64,
+    name: 'Varvarka 3',
+    point: {
+      lat: 55.752972,
+      lon: 37.628271,
+    },
+  },
+  {
+    id: 65,
+    name: '"Гештальт"  ​Ночной клуб',
+    point: {
+      lat: 55.76524,
+      lon: 37.632062,
+    },
+  },
+  {
+    id: 66,
+    name: 'Kultura',
+    point: {
+      lat: 55.732611,
+      lon: 37.604601,
+    },
+  },
+  {
+    id: 67,
+    name: 'НАХ',
+    point: {
+      lat: 55.759861,
+      lon: 37.610557,
+    },
+  },
+  {
+    id: 68,
+    name: 'VK GIPSY',
+    point: {
+      lat: 55.740005,
+      lon: 37.609523,
+    },
+  },
+  {
+    id: 69,
+    name: 'PAPA Barvillage',
+    point: {
+      lat: 55.77,
+      lon: 37.59445,
+    },
+  },
+  {
+    id: 70,
+    name: '"Стрелка" Культовый бар',
+    point: {
+      lat: 55.742564,
+      lon: 37.609263,
+    },
+  },
+  {
+    id: 71,
+    name: 'Bla Bla Bar',
+    point: {
+      lat: 55.77916,
+      lon: 37.591171,
+    },
+  },
+  {
+    id: 72,
+    name: 'Crush Lounge',
+    point: {
+      lat: 55.774441,
+      lon: 37.616512,
+    },
+  },
+  {
+    id: 73,
+    name: 'Mr. Atlant',
+    point: {
+      lat: 55.732621,
+      lon: 37.625783,
+    },
+  },
+  {
+    id: 75,
+    name: 'Siberia',
+    point: {
+      lat: 55.792427,
+      lon: 37.60894,
+    },
+  },
+  {
+    id: 74,
+    name: 'Mandarin Combustible',
+    point: {
+      lat: 55.758352,
+      lon: 37.62607,
+    },
+  },
+  {
+    id: 76,
+    name: 'ENJOY LUXURY SPA & BEAUTY STUDIO',
+    point: {
+      lat: 55.652903,
+      lon: 37.473033,
+    },
+  },
+  {
+    id: 77,
+    name: 'Сандуновские бани',
+    point: {
+      lat: 55.764222,
+      lon: 37.621229,
+    },
+  },
+  {
+    id: 78,
+    name: 'Серп и молот',
+    point: {
+      lat: 55.755368,
+      lon: 37.695079,
+    },
+  },
+  {
+    id: 79,
+    name: '"Девятый вал"',
+    point: {
+      lat: 55.665599,
+      lon: 37.650738,
+    },
+  },
+  {
+    id: 81,
+    name: '"Brick star" - музей лего',
+    point: {
+      lat: 55.766491,
+      lon: 37.622333,
+    },
+  },
+  {
+    id: 82,
+    name: 'ArtMaison - Художественная галерея',
+    point: {
+      lat: 55.775236,
+      lon: 37.674031,
+    },
+  },
+  {
+    id: 83,
+    name: 'PANORAMA360',
+    point: {
+      lat: 55.749633,
+      lon: 37.537434,
+    },
+  },
+  {
+    id: 85,
+    name: '"Zakat lounge"',
+    point: {
+      lat: 55.77271,
+      lon: 37.663324,
+    },
+  },
+  {
+    id: 84,
+    name: 'Мята Lounge Москва-Сити',
+    point: {
+      lat: 55.749162,
+      lon: 37.539742,
+    },
+  },
+  {
+    id: 90,
+    name: 'Carloson Club',
+    point: {
+      lat: 55.752328,
+      lon: 37.566773,
+    },
+  },
+  {
+    id: 91,
+    name: 'Octane club',
+    point: {
+      lat: 55.753154,
+      lon: 37.575819,
+    },
+  },
+  {
+    id: 92,
+    name: 'Первая Московская Галерея Восточной Живописи',
+    point: {
+      lat: 55.765306,
+      lon: 37.626088,
+    },
+  },
+  {
+    id: 93,
+    name: 'Му-Му ст. м. «Кузнецкий мост»',
+    point: {
+      lat: 55.761153,
+      lon: 37.623304,
+    },
+  },
+  {
+    id: 94,
+    name: 'Му-Му ст.м. "Арбатская"',
+    point: {
+      lat: 55.75205,
+      lon: 37.598546,
+    },
+  },
+  {
+    id: 106,
+    name: 'Лавсония',
+    point: {
+      lat: 55.786181,
+      lon: 37.570051,
+    },
+  },
+];
 
 export { arr, partners };
 
