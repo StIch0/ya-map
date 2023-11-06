@@ -51,10 +51,11 @@ const ExampleScreenFull = () => {
         onCameraPositionChangedEnd={(a) => {
           console.log('a', a.nativeEvent);
         }}
+        pointsData={{
+          pointsJson: JSON.stringify(list),
+          markerType: 'apartments',
+        }}
         style={{ flex: 1 }}
-        pointsJson={JSON.stringify(list)}
-        zoom={12}
-        markerType="apartments"
         onPressMarker={(a) => {
           console.log(a.nativeEvent);
         }}

@@ -57,9 +57,10 @@ const ExampleScreen = ({ navigation }) => {
         ref={ref}
         onCameraPositionChangedEnd={(a) => {}}
         style={{ flex: 1 }}
-        pointsJson={JSON.stringify(partners)}
-        zoom={12}
-        markerType="partners"
+        pointsData={{
+          pointsJson: JSON.stringify(partners),
+          markerType: 'partners',
+        }}
         onPressMarker={(a) => {
           console.log(a.nativeEvent);
         }}
