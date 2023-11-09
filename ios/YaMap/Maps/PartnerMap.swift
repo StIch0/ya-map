@@ -20,6 +20,7 @@ struct PartnerMap: Map {
         static let selectedCircle = UIImage(named: "partner-marker-circle-selected")
         static let selectedSubstrate = UIImage(named: "partner-marker-substrate-selected")
         static let maxWidth: CGFloat = 94
+        static let maxWidthText: CGFloat = 72
       }
 
       static let clusterCircle = UIImage(named: "partner-cluster")
@@ -33,7 +34,7 @@ struct PartnerMap: Map {
       static let horizontal: CGFloat = 2
       static let proportion: CGFloat = 0.47
       static let leftPadding: CGFloat = 10
-      static let rigtPadding: CGFloat = 10
+      static let rigtPadding: CGFloat = 12
     }
   }
   
@@ -158,7 +159,7 @@ struct PartnerMap: Map {
     let textFontAttributes: [NSAttributedString.Key: Any] = [
       .font: Constants.markerFont
     ]
-    let maxWidth: CGFloat = 70
+    let maxWidth: CGFloat = Constants.Image.Marker.maxWidthText
     let widthName = name.width(textFontAttributes)
     
     guard widthName > maxWidth else {
