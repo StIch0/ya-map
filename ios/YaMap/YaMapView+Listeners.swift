@@ -85,8 +85,17 @@ extension YaMapView: YMKMapObjectTapListener {
     )
     else { return false }
     
+    let ancorY: Double? = mapType.map {
+      switch $0 {
+      case .apartments:
+        return 1.0
+      case .partners:
+        return 0.5
+      }
+    }
+    
     placeMark.setIconWith(image, style: YMKIconStyle(
-      anchor: CGPoint(x: 0.0, y: 1.0) as NSValue,
+      anchor: CGPoint(x: 0.0, y: ancorY ?? 0) as NSValue,
       rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil))
     
     self.selectedPlacemarkMapObject = placeMark

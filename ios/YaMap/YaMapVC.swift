@@ -44,4 +44,5 @@ class YaMapVC: RCTViewManager  {
   override func view() -> UIView! {
     return YaMapView()
   }
+  
 }

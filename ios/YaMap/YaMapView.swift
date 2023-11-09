@@ -37,6 +37,7 @@ final class YaMapView: UIView {
   }
   
   var map: Map!
+  var mapType: MapType?
   
   var mapView: YMKMapView!
   private var yaMkCluster: YMKCluster?
@@ -44,7 +45,6 @@ final class YaMapView: UIView {
   
   var selectedPoint: PointCommon?
   var selectedId: Int?
-  private var mapType: MapType?
   
   var onCameraPositionChangedEnd: RCTBubblingEventBlock?
   var onPressMarker: RCTBubblingEventBlock?
@@ -81,7 +81,7 @@ final class YaMapView: UIView {
     userLocationLayer.setObjectListenerWith(self)
   }
   
-  func setStyleJson(_ styleJson: String){
+  func setStyleJson(_ styleJson: String) {
     mapView.mapWindow.map.setMapStyleWithStyle(styleJson)
   }
 
@@ -92,6 +92,7 @@ final class YaMapView: UIView {
     else { return }
     
     self.map = MapFactory().make(mapType: mapType)
+    self.mapType = mapType
     
     switch mapType {
     case .apartments:
@@ -104,6 +105,7 @@ final class YaMapView: UIView {
   private func getPoints<T: Decodable>(modelType: T.Type, pointsData: String) {
     switch getPointsResult(responseType: modelType, json: pointsData) {
     case .success(let points):
+      debugPrint(points)
       clearMapObjects()
       makePlaceMarks(points: points)
     case .failure(let error):
@@ -142,8 +144,17 @@ final class YaMapView: UIView {
     )
     else { return }
     
+    let ancorY: Double? = mapType.map {
+      switch $0 {
+      case .apartments:
+        return 1.0
+      case .partners:
+        return 0.5
+      }
+    }
+    
     selectedPlacemarkMapObject.setIconWith(image, style: YMKIconStyle(
-      anchor: CGPoint(x: 0.0, y: 1.0) as NSValue,
+      anchor: CGPoint(x: 0.0, y: ancorY ?? 0) as NSValue,
       rotationType: nil, zIndex: nil, flat: nil, visible: nil, scale: nil, tappableArea: nil))
     
     self.selectedPoint = nil

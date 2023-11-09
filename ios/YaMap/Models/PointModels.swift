@@ -10,7 +10,6 @@ protocol PointCommon: Decodable {
   var pos: Point { get }
 }
 
-
 struct Point: Decodable {
   let lat: Double
   let lon: Double
@@ -43,9 +42,6 @@ struct PointApartment: PointCommon {
   let apartmentAccessType: ApartmentAccessType
 }
 
-struct Points: Decodable {
-  let points: [PointApartment]
-}
 
 struct Throwable<T: Decodable>: Decodable {
     let result: Result<T, Error>
@@ -59,4 +55,11 @@ struct PointPartners: PointCommon {
   let id: Int
   let pos: Point
   let name: String
+  
+  
+  enum CodingKeys: String, CodingKey {
+      case pos = "point"
+      case id
+      case name
+  }
 }

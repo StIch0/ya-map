@@ -71,7 +71,7 @@ extension UIImage {
 }
 
 extension String {
-  func width() -> CGFloat {
-    (self as NSString).size().width
+  func width(_ textFontAttributes: [NSAttributedString.Key: Any]) -> CGFloat {
+    (self as NSString).size(withAttributes: textFontAttributes).width
   }
 }
