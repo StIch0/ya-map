@@ -105,7 +105,6 @@ final class YaMapView: UIView {
   private func getPoints<T: Decodable>(modelType: T.Type, pointsData: String) {
     switch getPointsResult(responseType: modelType, json: pointsData) {
     case .success(let points):
-      debugPrint(points)
       clearMapObjects()
       makePlaceMarks(points: points)
     case .failure(let error):

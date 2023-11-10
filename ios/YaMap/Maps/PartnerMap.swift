@@ -22,7 +22,6 @@ struct PartnerMap: Map {
         static let maxWidth: CGFloat = 94
         static let maxWidthText: CGFloat = 72
       }
-
       static let clusterCircle = UIImage(named: "partner-cluster")
     }
     static let threeDots: String = "..."
@@ -69,31 +68,37 @@ struct PartnerMap: Map {
     let secondaryLineText = textMarker.secondaryLine.map { configureTextMarker(name: $0, selected: selectedMarker)}
     let circleImage = selectedMarker ? Constants.Image.Marker.selectedCircle! : Constants.Image.Marker.circle!
     let substrateImage = selectedMarker ?  Constants.Image.Marker.selectedSubstrate! : Constants.Image.Marker.substrate!
-    let maxWidthSubstrate = Constants.Image.Marker.maxWidth + Constants.MarkerPadding.horizontal * 2
+    let maxWidthSubstrate = Constants.Image.Marker.maxWidth
     
-    let withSubstrate = {
-      if firstLineText.size.width < maxWidthSubstrate, 
-          let secondaryLineText, secondaryLineText.size.width < maxWidthSubstrate {
-        if firstLineText.size.width < secondaryLineText.size.width {
+    let widthSubstrateImage: CGFloat = {
+      if firstLineText.size.width < maxWidthSubstrate,
+          let secondaryLineText,
+          secondaryLineText.size.width < maxWidthSubstrate {
+        
+        if firstLineText.size.width <= secondaryLineText.size.width {
           return secondaryLineText.size.width
         } else {
-          return secondaryLineText.size.width
+          return firstLineText.size.width
+        }
+        
+      } else if secondaryLineText == nil {
+        if firstLineText.size.width < maxWidthSubstrate {
+          return firstLineText.size.width
+        } else {
+          return maxWidthSubstrate
         }
       }
       return maxWidthSubstrate
     }() + Constants.MarkerPadding.leftPadding +
     Constants.MarkerPadding.rigtPadding
     
-    let widthSubstrateImage: CGFloat = secondaryLineText != nil ? withSubstrate : firstLineText.size.width + 
-    Constants.MarkerPadding.leftPadding +
-    Constants.MarkerPadding.rigtPadding
-    
     let heightSubstrateImage: CGFloat = {
       guard let secondaryLineText else {
-        return firstLineText.size.height
+        return firstLineText.size.height + 10
       }
      return secondaryLineText.size.height + firstLineText.size.height + 2
     }() + Constants.MarkerPadding.vertical * 2
+    
     let newImageSize = CGSize(
       width: circleImage.size.width / 2  + widthSubstrateImage,
       height: heightSubstrateImage.rounded()
@@ -137,7 +142,9 @@ struct PartnerMap: Map {
     guard let secondaryLineText else {
       let newImage = UIGraphicsGetImageFromCurrentImageContext()
       UIGraphicsEndImageContext()
-      return newImage!
+      
+      let imageWithShadow = newImage?.withShadow(blur: 2, color: .lightGray)
+      return imageWithShadow!
     }
     
     let secondaryLinePoint = CGPoint(
@@ -152,7 +159,9 @@ struct PartnerMap: Map {
     
     let newImage = UIGraphicsGetImageFromCurrentImageContext()
     UIGraphicsEndImageContext()
-    return newImage!
+    
+    let imageWithShadow = newImage?.withShadow(blur: 2, color: .lightGray)
+    return imageWithShadow!
   }
   
   private func trimmingTextMarker(name: String) -> (firstLine: String, secondaryLine: String?) {
