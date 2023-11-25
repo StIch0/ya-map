@@ -26,7 +26,6 @@ import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
-import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
 
 
@@ -35,7 +34,7 @@ internal class PartnersMapVC(yaMapVC: YaMapVC) : MapVCInterface {
     private val id = yaMapVC.id
     private val map = yaMapVC.map
     private val density = yaMapVC.context.resources.displayMetrics.density
-    private var pointList: PartnersPointModel = PartnersPointModel()
+    private var pointList = mutableMapOf<Int, PlacemarkMapObject>()
     private val font = ResourcesCompat.getFont(context, R.font.roboto_medium)
     private var lastClickedMarker: Pair<PlacemarkMapObject, PartnersPointModelItem>? = null
 
@@ -135,20 +134,24 @@ internal class PartnersMapVC(yaMapVC: YaMapVC) : MapVCInterface {
 
     override fun setPointsJson(points: String) {
         val gson = Gson()
-        try {
-            pointList = gson.fromJson(points, PartnersPointModel::class.java)
+        val newPoints = try {
+            gson.fromJson(points, PartnersPointModel::class.java).associateBy { it.id }
         } catch (e: Exception) {
             Log.e("Error", e.message, e)
+            mapOf()
         }
-        clusterizedCollection.clear()
-        pointList.forEach {
-            val point = Point(it.point.lat, it.point.lon)
-            clusterizedCollection.addPlacemark(point).apply {
-                setMarkerIcon(it, false)
-                //setIcon(ImageProvider.fromResource(context, R.drawable.test_point))
-                userData = it
-                addTapListener(placemarkTapListener)
-            }
+        updatePoints(pointList, newPoints.keys, clusterizedCollection) { keys ->
+            keys.mapNotNull { key ->
+                newPoints[key]?.let {
+                    val point = Point(it.point.lat, it.point.lon)
+                    it.id to clusterizedCollection.addPlacemark(point).apply {
+                        setMarkerIcon(it, false)
+                        //setIcon(ImageProvider.fromResource(context, R.drawable.test_point))
+                        userData = it
+                        addTapListener(placemarkTapListener)
+                    }
+                }
+            }.toMap()
         }
         clusterizedCollection.clusterPlacemarks(100.0, 17)
     }

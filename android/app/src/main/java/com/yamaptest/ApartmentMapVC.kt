@@ -31,7 +31,7 @@ internal class ApartmentMapVC(yaMapVC: YaMapVC) : MapVCInterface {
     private val id = yaMapVC.id
     private val map = yaMapVC.map
     private val density = yaMapVC.context.resources.displayMetrics.density
-    private var pointList: YaMapPointModel = YaMapPointModel()
+    private var pointList = mutableMapOf<Int, PlacemarkMapObject>()
     private val font = ResourcesCompat.getFont(context, R.font.roboto_medium)
     private val moneyFormatter = NumberFormat.getCurrencyInstance(Locale("RU", "RU")).apply {
         maximumFractionDigits = 0
@@ -150,21 +150,45 @@ internal class ApartmentMapVC(yaMapVC: YaMapVC) : MapVCInterface {
 
     override fun setPointsJson(points: String) {
         val gson = Gson()
-        try {
-            pointList = gson.fromJson(points, YaMapPointModel::class.java)
+        val newPoints = try {
+            gson.fromJson(points, YaMapPointModel::class.java).associateBy { it.id }
         } catch (e: Exception) {
             Log.e("Error", e.message, e)
+            mapOf()
         }
-        clusterizedCollection.clear()
-        pointList.forEach {
-            val point = Point(it.pos.lat, it.pos.lon)
-            clusterizedCollection.addPlacemark(point).apply {
-                setMarkerIcon(it, false)
-                //setIcon(ImageProvider.fromResource(context, R.drawable.test_point))
-                userData = it
-                addTapListener(placemarkTapListener)
-            }
+        updatePoints(pointList, newPoints.keys, clusterizedCollection) { keys ->
+            keys.mapNotNull { key ->
+                newPoints[key]?.let {
+                    val point = Point(it.pos.lat, it.pos.lon)
+                    it.id to clusterizedCollection.addPlacemark(point).apply {
+                        setMarkerIcon(it, false)
+                        //setIcon(ImageProvider.fromResource(context, R.drawable.test_point))
+                        userData = it
+                        addTapListener(placemarkTapListener)
+                    }
+                }
+            }.toMap()
         }
+//        val oldPoints = pointList
+//
+//        val diff = (oldPoints - newPoints)
+//        diff.keys.forEach {
+//            pointList.remove(it)
+//        }
+//        diff.values.forEach {
+//            clusterizedCollection.remove(it)
+//        }
+//
+//        pointList.putAll(
+//            (newPoints - oldPoints).values.associate {
+//                val point = Point(it.pos.lat, it.pos.lon)
+//                it.id to clusterizedCollection.addPlacemark(point).apply {
+//                    setMarkerIcon(it, false)
+//                    //setIcon(ImageProvider.fromResource(context, R.drawable.test_point))
+//                    userData = it
+//                    addTapListener(placemarkTapListener)
+//                }
+//            })
         clusterizedCollection.clusterPlacemarks(100.0, 17)
     }
 
