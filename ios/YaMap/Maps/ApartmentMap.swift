@@ -34,22 +34,33 @@ struct ApartmentMap: Map {
   }
   
   func clearMapObjects(
-    newPoints: [Decodable],
-    collection: YMKClusterizedPlacemarkCollection?,
-    currentPoints: inout [Int: YMKPlacemarkMapObject],
-    mapObjects: YMKMapObjectCollection?
+      newPoints: [Decodable],
+      collection: YMKClusterizedPlacemarkCollection?,
+      currentPoints: inout [Int: YMKPlacemarkMapObject],
+      mapObjects: YMKMapObjectCollection?
   ) {
-    guard
-      let newPoints = newPoints as? [PointApartment],
-      let collection
-    else { return }
-    
-    newPoints.forEach { newPoint in
-      if let newPointInCurrent = currentPoints[newPoint.id] {
-        currentPoints.removeValue(forKey: newPoint.id)
-        collection.remove(with: newPointInCurrent)
+      guard
+          let newPoints = newPoints as? [PointApartment],
+          let collection
+      else { return }
+
+      let objectsSet = Set(newPoints.map { $0.id })
+
+      var placemarksToRemove = [YMKPlacemarkMapObject]()
+
+      for (id, placemark) in currentPoints {
+          guard let userData = placemark.userData as? PointApartment else { continue }
+          if !objectsSet.contains(userData.id) {
+              placemarksToRemove.append(placemark)
+              currentPoints.removeValue(forKey: id)
+          }
       }
-    }
+
+      for placemark in placemarksToRemove {
+          collection.remove(with: placemark)
+      }
+
+      collection.clusterPlacemarks(withClusterRadius: 35, minZoom: 20)
   }
   
   func makePlaceMarks(
