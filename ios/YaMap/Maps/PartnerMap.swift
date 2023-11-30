@@ -8,7 +8,6 @@
 import YandexMapsMobile
 
 struct PartnerMap: Map {
-  
   private enum Constants {
     
     enum Image {
@@ -37,8 +36,30 @@ struct PartnerMap: Map {
     }
   }
   
-  func makePlaceMarks(points: [Decodable], collection: YMKClusterizedPlacemarkCollection, listener: YMKMapObjectTapListener) {
-    guard let points = points as? [PointPartners] else { return }
+  
+  func clearMapObjects(
+    newPoints: [Decodable],
+    collection: YMKClusterizedPlacemarkCollection?,
+    currentPoints: inout [Int: YMKPlacemarkMapObject],
+    mapObjects: YMKMapObjectCollection?
+  ) {
+    guard
+      let newPoints = newPoints as? [PointPartners],
+      let collection
+    else { return  }
+    
+    newPoints.forEach { newPoint in
+      if let newPointInCurrent = currentPoints[newPoint.id] {
+        collection.remove(with: newPointInCurrent)
+        currentPoints.removeValue(forKey: newPoint.id)
+      }
+    }
+  }
+  
+  func makePlaceMarks(points: [Decodable], collection: YMKClusterizedPlacemarkCollection, listener:  YMKMapObjectTapListener) -> [Int: YMKPlacemarkMapObject]?  {
+    guard let points = points as? [PointPartners] else { return nil }
+    
+    var collectionPlaceMarks = [Int: YMKPlacemarkMapObject]()
     
     points.forEach {
       guard let marker = makeMarkerImage($0, selectedMarker: false) else { return }
@@ -55,8 +76,11 @@ struct PartnerMap: Map {
       )
       placemark.userData = $0
       placemark.addTapListener(with: listener)
+      collectionPlaceMarks[$0.id] = placemark
     }
     collection.clusterPlacemarks(withClusterRadius: 35, minZoom: 20)
+    
+    return collectionPlaceMarks
   }
   
   func makeMarkerImage(_ pointItem: Decodable, selectedMarker: Bool) -> UIImage? {

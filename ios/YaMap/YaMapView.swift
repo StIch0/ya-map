@@ -42,13 +42,19 @@ final class YaMapView: UIView {
   var mapView: YMKMapView!
   private var yaMkCluster: YMKCluster?
   var selectedPlacemarkMapObject: YMKPlacemarkMapObject?
+  var collection: YMKClusterizedPlacemarkCollection?
   
   var selectedPoint: PointCommon?
   var selectedId: Int?
+  private var points: [Int: YMKPlacemarkMapObject]?
   
   var onCameraPositionChangedEnd: RCTBubblingEventBlock?
   var onPressMarker: RCTBubblingEventBlock?
   var onMapPressed: RCTBubblingEventBlock?
+  
+  lazy var mapObjects: YMKMapObjectCollection? = {
+    self.mapView?.mapWindow.map.mapObjects
+  }()
   
   private let getPointsResult = GetPointsResult()
   
@@ -104,24 +110,23 @@ final class YaMapView: UIView {
   
   private func getPoints<T: Decodable>(modelType: T.Type, pointsData: String) {
     switch getPointsResult(responseType: modelType, json: pointsData) {
-    case .success(let points):
-      clearMapObjects()
-      makePlaceMarks(points: points)
+    case .success(let newPoints):
+      guard self.points != nil else {
+        self.points = makePlaceMarks(points: newPoints)
+        return
+      }
+      clearSelectedMark()
+      map.clearMapObjects(newPoints: newPoints, collection: collection, currentPoints: &points!, mapObjects: mapObjects)
     case .failure(let error):
       debugPrint(error.localizedDescription)
     }
   }
-
-  private func clearMapObjects() {
-    clearSelectedMark()
-    let mapObjects = mapView.mapWindow.map.mapObjects
-    mapObjects.clear()
-  }
   
-  private func makePlaceMarks(points: [Decodable]) {
-    guard let collection = mapView?.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(with: self) else { return }
+  private func makePlaceMarks(points: [Decodable]) -> [Int: YMKPlacemarkMapObject]? {
+    guard let collection = mapView?.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(with: self) else { return nil }
+    self.collection = collection
 
-    map?.makePlaceMarks(points: points, collection: collection, listener: self)
+    return map?.makePlaceMarks(points: points, collection: collection, listener: self)
   }
 
   func setCenter(center: Point, zoom: Float) {

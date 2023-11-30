@@ -10,7 +10,18 @@ import YandexMapsMobile
 protocol Map {
   func makeMarkerImage(_ pointItem: Decodable, selectedMarker: Bool) -> UIImage?
   func makeClusterImage(cluster: YMKCluster) -> UIImage
-  func makePlaceMarks(points: [Decodable], collection: YMKClusterizedPlacemarkCollection, listener: YMKMapObjectTapListener)
+  
+  func makePlaceMarks(
+    points: [Decodable],
+    collection: YMKClusterizedPlacemarkCollection,
+    listener: YMKMapObjectTapListener) -> [Int: YMKPlacemarkMapObject]?
+  
+  func clearMapObjects(
+    newPoints: [Decodable],
+    collection: YMKClusterizedPlacemarkCollection?,
+    currentPoints: inout [Int: YMKPlacemarkMapObject],
+    mapObjects: YMKMapObjectCollection?
+  )
 }
 
 enum MapType: String {

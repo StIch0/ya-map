@@ -10,12 +10,12 @@ protocol PointCommon: Decodable {
   var pos: Point { get }
 }
 
-struct Point: Decodable {
+struct Point: Decodable, Equatable {
   let lat: Double
   let lon: Double
 }
 
-struct TariffItem: Decodable {
+struct TariffItem: Decodable, Equatable{
   let code: String
   let priceHour: Int
   let priceDay: Int
@@ -29,13 +29,13 @@ enum ApartmentAccessTypeId: Int, Decodable {
   case classic = 2
 }
 
-struct ApartmentAccessType: Decodable {
+struct ApartmentAccessType: Decodable, Equatable {
   let id: ApartmentAccessTypeId
   let title: String
   let __typename: String
 }
 
-struct PointApartment: PointCommon {
+struct PointApartment: PointCommon, Equatable {
   let id: Int
   let pos: Point
   let apartTariffs: [TariffItem]
@@ -51,11 +51,10 @@ struct Throwable<T: Decodable>: Decodable {
     }
 }
 
-struct PointPartners: PointCommon {
+struct PointPartners: PointCommon, Equatable {
   let id: Int
   let pos: Point
   let name: String
-  
   
   enum CodingKeys: String, CodingKey {
       case pos = "point"
@@ -63,3 +62,4 @@ struct PointPartners: PointCommon {
       case name
   }
 }
+
