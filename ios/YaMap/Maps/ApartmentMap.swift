@@ -59,8 +59,6 @@ struct ApartmentMap: Map {
       for placemark in placemarksToRemove {
           collection.remove(with: placemark)
       }
-
-      collection.clusterPlacemarks(withClusterRadius: 35, minZoom: 20)
   }
   
   func makePlaceMarks(
