@@ -5,12 +5,17 @@
 //  Created by Pavel on 16.08.2023.
 //
 
-struct Point: Decodable {
+protocol PointCommon: Decodable {
+  var id: Int { get }
+  var pos: Point { get }
+}
+
+struct Point: Decodable, Equatable {
   let lat: Double
   let lon: Double
 }
 
-struct TariffItem: Decodable {
+struct TariffItem: Decodable, Equatable{
   let code: String
   let priceHour: Int
   let priceDay: Int
@@ -24,14 +29,14 @@ enum ApartmentAccessTypeId: Int, Decodable {
   case classic = 2
 }
 
-struct ApartmentAccessType: Decodable {
+struct ApartmentAccessType: Decodable, Equatable {
   let id: ApartmentAccessTypeId
   let title: String
   let __typename: String
 }
 
-struct PointItem: Decodable {
-  let id: Int;
+struct PointApartment: PointCommon, Equatable {
+  let id: Int
   let pos: Point
   let apartTariffs: [TariffItem]
   let apartmentAccessType: ApartmentAccessType
@@ -45,3 +50,16 @@ struct Throwable<T: Decodable>: Decodable {
         result = Result(catching: { try T(from: decoder) })
     }
 }
+
+struct PointPartners: PointCommon, Equatable {
+  let id: Int
+  let pos: Point
+  let name: String
+  
+  enum CodingKeys: String, CodingKey {
+      case pos = "point"
+      case id
+      case name
+  }
+}
+

@@ -35,14 +35,14 @@ class YaMapVC: RCTViewManager  {
       
       view?.resetSelectedId()
     }
-    
   }
    
   override static func requiresMainQueueSetup() -> Bool {
       return true
-    }
+  }
   
   override func view() -> UIView! {
     return YaMapView()
   }
+  
 }
