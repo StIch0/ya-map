@@ -111,12 +111,12 @@ final class YaMapView: UIView {
   private func getPoints<T: Decodable>(modelType: T.Type, pointsData: String) {
     switch getPointsResult(responseType: modelType, json: pointsData) {
     case .success(let newPoints):
-      guard self.points != nil else {
+      guard let points = self.points, !points.isEmpty  else {
         self.points = makePlaceMarks(points: newPoints)
         return
       }
       clearSelectedMark()
-      map.clearMapObjects(newPoints: newPoints, collection: collection, currentPoints: &points!, mapObjects: mapObjects)
+      map.clearMapObjects(newPoints: newPoints, collection: collection, currentPoints: &self.points!, mapObjects: mapObjects)
     case .failure(let error):
       debugPrint(error.localizedDescription)
     }
