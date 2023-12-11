@@ -132,6 +132,8 @@ internal class PartnersMapVC(yaMapVC: YaMapVC) : MapVCInterface {
         map.addInputListener(inputListener)
     }
 
+    private var isClustered = false
+
     override fun setPointsJson(points: String) {
         val gson = Gson()
         val newPoints = try {
@@ -153,7 +155,10 @@ internal class PartnersMapVC(yaMapVC: YaMapVC) : MapVCInterface {
                 }
             }.toMap()
         }
-        clusterizedCollection.clusterPlacemarks(100.0, 17)
+        if (!isClustered) {
+            isClustered = true
+            clusterizedCollection.clusterPlacemarks(100.0, 17)
+        }
     }
 
     override fun resetSelectedId() {

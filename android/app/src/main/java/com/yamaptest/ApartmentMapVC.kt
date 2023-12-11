@@ -148,6 +148,8 @@ internal class ApartmentMapVC(yaMapVC: YaMapVC) : MapVCInterface {
         map.addInputListener(inputListener)
     }
 
+    private var isClustered = false
+
     override fun setPointsJson(points: String) {
         val gson = Gson()
         val newPoints = try {
@@ -169,27 +171,10 @@ internal class ApartmentMapVC(yaMapVC: YaMapVC) : MapVCInterface {
                 }
             }.toMap()
         }
-//        val oldPoints = pointList
-//
-//        val diff = (oldPoints - newPoints)
-//        diff.keys.forEach {
-//            pointList.remove(it)
-//        }
-//        diff.values.forEach {
-//            clusterizedCollection.remove(it)
-//        }
-//
-//        pointList.putAll(
-//            (newPoints - oldPoints).values.associate {
-//                val point = Point(it.pos.lat, it.pos.lon)
-//                it.id to clusterizedCollection.addPlacemark(point).apply {
-//                    setMarkerIcon(it, false)
-//                    //setIcon(ImageProvider.fromResource(context, R.drawable.test_point))
-//                    userData = it
-//                    addTapListener(placemarkTapListener)
-//                }
-//            })
-        clusterizedCollection.clusterPlacemarks(100.0, 17)
+        if (!isClustered) {
+            isClustered = true
+            clusterizedCollection.clusterPlacemarks(100.0, 17)
+        }
     }
 
     override fun resetSelectedId() {

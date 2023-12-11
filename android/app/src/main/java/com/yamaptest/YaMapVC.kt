@@ -72,10 +72,12 @@ class YaMapVC(context: Context) : MapView(context), CameraListener {
 
     fun setPointsData(points: ReadableMap) {
         val type = points.getString("markerType")
-        mapVC = when (type) {
-            "apartments" -> ApartmentMapVC(this)
-            "partners" -> PartnersMapVC(this)
-            else -> null
+        if (mapVC == null) {
+            mapVC = when (type) {
+                "apartments" -> ApartmentMapVC(this)
+                "partners" -> PartnersMapVC(this)
+                else -> null
+            }
         }
         points.getString("pointsJson")?.let { mapVC?.setPointsJson(it) }
     }
