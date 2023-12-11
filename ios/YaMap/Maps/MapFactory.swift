@@ -14,14 +14,16 @@ protocol Map {
   func makePlaceMarks(
     points: [Decodable],
     collection: YMKClusterizedPlacemarkCollection,
-    listener: YMKMapObjectTapListener) -> [Int: YMKPlacemarkMapObject]?
+    listener: YMKMapObjectTapListener
+  ) -> [Int: YMKPlacemarkMapObject]?
   
-  func clearMapObjects(
+  func filterMapObjects(
     newPoints: [Decodable],
     collection: YMKClusterizedPlacemarkCollection?,
     currentPoints: inout [Int: YMKPlacemarkMapObject],
-    mapObjects: YMKMapObjectCollection?
-  )
+    mapObjects: YMKMapObjectCollection?,
+    listener: YMKMapObjectTapListener
+  ) -> [Int: YMKPlacemarkMapObject]?
 }
 
 enum MapType: String {

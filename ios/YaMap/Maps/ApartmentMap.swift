@@ -33,32 +33,45 @@ struct ApartmentMap: Map {
     }
   }
   
-  func clearMapObjects(
-      newPoints: [Decodable],
-      collection: YMKClusterizedPlacemarkCollection?,
-      currentPoints: inout [Int: YMKPlacemarkMapObject],
-      mapObjects: YMKMapObjectCollection?
-  ) {
-      guard
-          let newPoints = newPoints as? [PointApartment],
-          let collection
-      else { return }
+  func filterMapObjects(
+    newPoints: [Decodable],
+    collection: YMKClusterizedPlacemarkCollection?,
+    currentPoints: inout [Int: YMKPlacemarkMapObject],
+    mapObjects: YMKMapObjectCollection?,
+    listener: YMKMapObjectTapListener
+  ) -> [Int: YMKPlacemarkMapObject]? {
+    guard
+      let newPoints = newPoints as? [PointApartment],
+      let collection
+    else { return nil }
+    
+    let objectsSet = Set(newPoints.map { $0.id })
+    
+    var placemarksToRemove = [YMKPlacemarkMapObject]()
+    var newPlaceMarks = [PointApartment]()
 
-      let objectsSet = Set(newPoints.map { $0.id })
-
-      var placemarksToRemove = [YMKPlacemarkMapObject]()
-
-      for (id, placemark) in currentPoints {
-          guard let userData = placemark.userData as? PointApartment else { continue }
-          if !objectsSet.contains(userData.id) {
-              placemarksToRemove.append(placemark)
-              currentPoints.removeValue(forKey: id)
-          }
+    for point in newPoints {
+      if currentPoints[point.id] == nil {
+         newPlaceMarks.append(point)
       }
-
-      for placemark in placemarksToRemove {
-          collection.remove(with: placemark)
+    }
+    
+    for (id, placemark) in currentPoints {
+      guard let userData = placemark.userData as? PointApartment else { continue }
+      
+      if !objectsSet.contains(userData.id) {
+        placemarksToRemove.append(placemark)
+        currentPoints.removeValue(forKey: id)
       }
+    }
+    
+    for placemark in placemarksToRemove {
+      collection.remove(with: placemark)
+    }
+    
+    guard !newPlaceMarks.isEmpty else { return nil }
+    
+    return self.makePlaceMarks(points: newPlaceMarks, collection: collection, listener: listener)
   }
   
   func makePlaceMarks(

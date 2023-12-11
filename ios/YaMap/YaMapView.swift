@@ -116,7 +116,17 @@ final class YaMapView: UIView {
         return
       }
       clearSelectedMark()
-      map.clearMapObjects(newPoints: newPoints, collection: collection, currentPoints: &self.points!, mapObjects: mapObjects)
+      
+      guard let points = map.filterMapObjects(
+        newPoints: newPoints,
+        collection: collection,
+        currentPoints: &self.points!,
+        mapObjects: mapObjects,
+        listener: self
+      )
+      else { return }
+      
+      self.points = points
     case .failure(let error):
       debugPrint(error.localizedDescription)
     }

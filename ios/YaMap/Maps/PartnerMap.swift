@@ -37,23 +37,45 @@ struct PartnerMap: Map {
   }
   
   
-  func clearMapObjects(
+  func filterMapObjects(
     newPoints: [Decodable],
     collection: YMKClusterizedPlacemarkCollection?,
     currentPoints: inout [Int: YMKPlacemarkMapObject],
-    mapObjects: YMKMapObjectCollection?
-  ) {
+    mapObjects: YMKMapObjectCollection?,
+    listener: YMKMapObjectTapListener
+  ) -> [Int: YMKPlacemarkMapObject]? {
     guard
       let newPoints = newPoints as? [PointPartners],
       let collection
-    else { return  }
+    else { return nil }
     
-    newPoints.forEach { newPoint in
-      if let newPointInCurrent = currentPoints[newPoint.id] {
-        collection.remove(with: newPointInCurrent)
-        currentPoints.removeValue(forKey: newPoint.id)
+    let objectsSet = Set(newPoints.map { $0.id })
+    
+    var placemarksToRemove = [YMKPlacemarkMapObject]()
+    var newPlaceMarks = [PointPartners]()
+
+    for point in newPoints {
+      if currentPoints[point.id] == nil {
+         newPlaceMarks.append(point)
       }
     }
+    
+    for (id, placemark) in currentPoints {
+      guard let userData = placemark.userData as? PointPartners else { continue }
+      
+      if !objectsSet.contains(userData.id) {
+        placemarksToRemove.append(placemark)
+        currentPoints.removeValue(forKey: id)
+      }
+    }
+    
+    for placemark in placemarksToRemove {
+      collection.remove(with: placemark)
+    }
+    
+    guard !newPlaceMarks.isEmpty else { return nil }
+    
+    return self.makePlaceMarks(points: newPlaceMarks, collection: collection, listener: listener)
   }
   
   func makePlaceMarks(points: [Decodable], collection: YMKClusterizedPlacemarkCollection, listener:  YMKMapObjectTapListener) -> [Int: YMKPlacemarkMapObject]?  {
