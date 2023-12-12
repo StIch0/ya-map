@@ -49,28 +49,12 @@ struct PartnerMap: Map {
       let collection
     else { return nil }
     
-    let objectsSet = Set(newPoints.map { $0.id })
-    
-    var placemarksToRemove = [YMKPlacemarkMapObject]()
     var newPlaceMarks = [PointPartners]()
 
     for point in newPoints {
       if currentPoints[point.id] == nil {
          newPlaceMarks.append(point)
       }
-    }
-    
-    for (id, placemark) in currentPoints {
-      guard let userData = placemark.userData as? PointPartners else { continue }
-      
-      if !objectsSet.contains(userData.id) {
-        placemarksToRemove.append(placemark)
-        currentPoints.removeValue(forKey: id)
-      }
-    }
-    
-    for placemark in placemarksToRemove {
-      collection.remove(with: placemark)
     }
     
     guard !newPlaceMarks.isEmpty else { return nil }
